@@ -6,6 +6,7 @@ import Hero from "@/components/ui/hero";
 import Head from "next/head";
 import { Button } from "@/components/ui/button";
 import Marquee from "react-fast-marquee";
+import SparklesText from "@/components/magicui/sparkles-text";
 
 export default function Home() {
   return (
@@ -13,9 +14,9 @@ export default function Home() {
       <div className="w-full pt-16 md:pt-[5.5rem]">
         <section className="flex flex-col items-center justify-center bg-main bg-cover bg-center bg-no-repeat px-5 pt-[100px] pb-[100px] m1000:py-[150px] m500:py-[120px]" style={{ backgroundImage: `url(${herogrid.src})` }}>
           <div className="pb-16">
-            <h1 className="text-center font-heading text-7xl m1000:text-5xl">
-              DEETNUTS
-            </h1>
+            <div className="text-6xl tracking-tight text-center text-gray-900 sm:text-[96px]">
+              <SparklesText text="DEETNUTS"/>
+            </div>
             <h2 className="text-center font-heading text-3xl m1000:text-2xl m500:text-xl m400:text-xl">
               mildly important college data simplified
             </h2>

@@ -32,11 +32,6 @@ const MAIN_SIDEBAR = [
     href: '/datasource',
     text: 'Stats',
   },
-  'Scrapers',
-  {
-    href: '/scraper',
-    text: 'The scrapers',
-  },
 ]
 
 
