@@ -9,7 +9,7 @@ import { Suspense } from "react";
 import Loading from "./loading";
 import { Toaster } from "@/components/ui/toaster"
 import NextTopLoader from 'nextjs-toploader';
-import { motion } from 'framer-motion';
+import MotionWrapper from '@/components/MotionWrapper';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,12 +31,7 @@ export default function RootLayout({
       <body className={`${inter.className} relative min-h-screen overflow-x-hidden`}>
         <Navbar />
         <Suspense fallback={<Loading />}>
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
+          <MotionWrapper>
             <NextTopLoader
               color="#C7A1FE"
               initialPosition={0.08}
@@ -49,7 +44,7 @@ export default function RootLayout({
               shadow="0 0 20px #C7A1FE,0 0 15px #C7A1FE"
             />
             {children}
-          </motion.div>
+          </MotionWrapper>
         </Suspense>
         <Toaster />
         <GrainEffect />
