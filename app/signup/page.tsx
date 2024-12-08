@@ -5,16 +5,17 @@ import { redirect } from "next/navigation";
 import { SubmitButton } from "./sumbit-button";
 import { Input } from "@/components/ui/input";
 
-export default function Login({
-  searchParams,
-}: {
-  searchParams: { message: string };
-}) {
+export default async function Login(
+  props: {
+    searchParams: Promise<{ message: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
 
   const signUp = async (formData: FormData) => {
     "use server";
 
-    const origin = headers().get("origin");
+    const origin = (await headers()).get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const firstName = formData.get("firstName") as string;

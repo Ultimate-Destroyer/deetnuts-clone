@@ -7,10 +7,9 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 import GrainEffect from '@/components/graineffect';
 import { Suspense } from "react";
 import Loading from "./loading";
-import BlurFade from "@/components/magicui/blur-fade";
 import { Toaster } from "@/components/ui/toaster"
 import NextTopLoader from 'nextjs-toploader';
-import DockAnimation from '@/components/DockerAnimation';
+import { motion } from 'framer-motion';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,7 +31,12 @@ export default function RootLayout({
       <body className={`${inter.className} relative min-h-screen overflow-x-hidden`}>
         <Navbar />
         <Suspense fallback={<Loading />}>
-          <BlurFade delay={0.25} inView>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
             <NextTopLoader
               color="#C7A1FE"
               initialPosition={0.08}
@@ -45,7 +49,7 @@ export default function RootLayout({
               shadow="0 0 20px #C7A1FE,0 0 15px #C7A1FE"
             />
             {children}
-          </BlurFade>
+          </motion.div>
         </Suspense>
         <Toaster />
         <GrainEffect />

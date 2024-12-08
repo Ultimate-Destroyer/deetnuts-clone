@@ -1,6 +1,6 @@
 'use client'
 import ReactDom from 'react-dom'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, type JSX } from 'react';
 
 type Props = {
   active: boolean

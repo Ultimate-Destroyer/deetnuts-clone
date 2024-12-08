@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, use } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { formatInstituteName } from '@/lib/formatInstituteName';
@@ -18,7 +18,8 @@ interface CollegeRecord {
   City: string | null;
 }
 
-export default function CityColleges({ params }: { params: { city: string } }) {
+export default function CityColleges(props: { params: Promise<{ city: string }> }) {
+  const params = use(props.params);
   const [colleges, setColleges] = useState<CollegeRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);

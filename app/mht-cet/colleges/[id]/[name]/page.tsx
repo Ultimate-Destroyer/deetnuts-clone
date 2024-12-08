@@ -16,7 +16,7 @@ const lato = Montserrat({
 export const dynamicParams = true;
 
 type Params = {
-  id: number;
+  id: string;
   name: string;
 };
 
@@ -46,11 +46,13 @@ export async function generateStaticParams() {
   })) || [];
 }
 
-export async function generateMetadata({ params }: { params: Params }) {
+export async function generateMetadata(props: { params: Promise<Params> }) {
+  const params = await props.params;
+  const instituteId = Number(params.id); // Parse 'id' to number
   const { data } = await supabase
     .from('colleges_within_mhtcet_pcm')
     .select('College')
-    .eq('ID', params.id)
+    .eq('ID', instituteId)
     .single();
 
   if (!data) {
@@ -60,11 +62,13 @@ export async function generateMetadata({ params }: { params: Params }) {
   return { title: data.College };
 }
 
-const InstitutePage: React.FC<{ params: Params }> = async ({ params }) => {
+const InstitutePage: React.FC<{ params: Promise<Params> }> = async (props) => {
+  const params = await props.params;
+  const instituteId = Number(params.id); // Parse 'id' to number
   const { data: instituteData, error: instituteError } = await supabase
     .from('colleges_within_mhtcet_pcm')
     .select('*')
-    .eq('ID', params.id)
+    .eq('ID', instituteId)
     .single();
 
   if (instituteError || !instituteData) {
@@ -82,7 +86,7 @@ const InstitutePage: React.FC<{ params: Params }> = async ({ params }) => {
     const { data, error } = await supabase
       .from(tableName)
       .select('"Institute Code", "Course Name", "Percentile"')
-      .eq('Institute Code', params.id);
+      .eq('Institute Code', instituteId);
 
     if (error) {
       console.error(`Error fetching data from ${tableName}:`, error);

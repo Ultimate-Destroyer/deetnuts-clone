@@ -29,13 +29,14 @@ async function getTasks(year: number, round: string) {
 }
 
 interface TaskPageProps {
-  params: {
+  params: Promise<{
     year: string;
     round: string;
-  };
+  }>;
 }
 
-export default async function TaskPage({ params }: TaskPageProps) {
+export default async function TaskPage(props: TaskPageProps) {
+  const params = await props.params;
   const year = parseInt(params.year) || 2023;
   const round = params.round;
   const tasks = await getTasks(year, round);

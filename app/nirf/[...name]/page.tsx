@@ -55,7 +55,8 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: { params: { name: string[] } }) {
+export async function generateMetadata(props: { params: Promise<{ name: string[] }> }) {
+  const params = await props.params;
   const decodedField = params.name[0].replace(/-/g, ' ');
   const fieldTitle = decodedField.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
@@ -65,7 +66,8 @@ export async function generateMetadata({ params }: { params: { name: string[] } 
   };
 }
 
-export default function FieldPage({ params }: { params: { name: string[] } }) {
+export default async function FieldPage(props: { params: Promise<{ name: string[] }> }) {
+  const params = await props.params;
   console.log("Params received:", params); // Debugging line
 
   const decodedField = params.name[0].replace(/-/g, ' ');

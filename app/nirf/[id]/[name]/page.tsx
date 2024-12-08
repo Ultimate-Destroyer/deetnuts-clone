@@ -35,7 +35,8 @@ export async function generateStaticParams() {
   })) || [];
 }
 
-export async function generateMetadata({ params }: { params: Params }) {
+export async function generateMetadata(props: { params: Promise<Params> }) {
+  const params = await props.params;
   const { data } = await supabase
     .from('nirf')
     .select('"institute_name", "institute_id"')
@@ -49,7 +50,8 @@ export async function generateMetadata({ params }: { params: Params }) {
   return { title: `${data.institute_name} | ${data.institute_id}` };
 }
 
-const InstitutePage = async ({ params }: { params: Params }) => {
+const InstitutePage = async (props: { params: Promise<Params> }) => {
+  const params = await props.params;
   const { data: instituteData, error: instituteError } = await supabase
     .from('nirf')
     .select('*')
@@ -79,8 +81,8 @@ const InstitutePage = async ({ params }: { params: Params }) => {
   let ugFemaleStudents = extraData ? extraData['UG-Female-Students'] : 0;
   const totalStudents = ugMaleStudents + ugFemaleStudents;
 
-  const MAX_SEATS_PER_ROW = 150; 
-  
+  const MAX_SEATS_PER_ROW = 150;
+
   const generateRows = () => {
     const rows = [];
     const numRows = Math.ceil(totalStudents / MAX_SEATS_PER_ROW);
