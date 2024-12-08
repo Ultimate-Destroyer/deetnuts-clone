@@ -29,7 +29,7 @@ export default function RootLayout({
       <meta property="og:image" content="https://res.cloudinary.com/dfyrk32ua/image/upload/v1722186653/deetnuts/preview_o5ykn7.png" />
       <meta property="og:image:webp" content="https://res.cloudinary.com/dfyrk32ua/image/upload/v1722186653/deetnuts/preview_o5ykn7.png" />
       <link rel="icon" href="/favicon.ico" />
-      <body className={`${inter.className} relative min-h-screen`}>
+      <body className={`${inter.className} relative min-h-screen overflow-x-hidden`}>
         <Navbar />
         <Suspense fallback={<Loading />}>
           <BlurFade delay={0.25} inView>
