@@ -1,23 +1,30 @@
-# Use an official Node.js runtime as the base image
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --force --only=production
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json to the container
-COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the application files to the container
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG DATABASE_URL
+ARG DIRECT_URL
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
+    DATABASE_URL=$DATABASE_URL \
+    DIRECT_URL=$DIRECT_URL
+RUN npx next build
 
-# Build the Next.js application for production
-RUN npm run build
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production \
+    HOSTNAME=0.0.0.0 \
+    PORT=3000
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-# Expose the application port (assuming your app runs on port 3000)
 EXPOSE 3000
-
-# Start the application
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

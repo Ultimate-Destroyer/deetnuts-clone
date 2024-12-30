@@ -7,11 +7,13 @@ import { z } from 'zod';
 import { DataTable } from './components/data-table';
 import { columns } from '@/app/mht-cet/all-state-cutoffs/components/columns';
 import { taskSchema } from "@/app/mht-cet/all-state-cutoffs/data/schema";
+import { CutoffTrendChart } from './components/CutoffTrendChart';
 
 const lato = Montserrat({
   subsets: ["latin"],
   weight: ['400', '700', '900'],
 })
+
 
 export const dynamicParams = true;
 
@@ -141,6 +143,15 @@ const InstitutePage: React.FC<{ params: Promise<Params> }> = async (props) => {
           ))}
         </div>
         <hr className='mt-20 border-black'/>
+
+        {/* Cutoff Trend Chart */}
+        <div className="mt-4">
+          <h2 className="text-2xl font-bold mb-4">Cutoff Analysis</h2>
+          <CutoffTrendChart 
+            roundOneCutoffs={stateData.find(d => d.round === 'one')?.data || []}
+          />
+        </div>
+
         {/* All India Cutoffs Section */}
         <div className="mt-4">
           <h2 className="text-2xl font-bold mb-4">All India Cutoffs</h2> 
