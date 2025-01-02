@@ -41,23 +41,18 @@ jobs:
 
       - name: Set up Docker Compose
         run: |
-          docker compose build \
-            --build-arg NEXT_PUBLIC_SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
-            --build-arg DATABASE_URL="${DATABASE_URL}" \
-            --build-arg DIRECT_URL="${DIRECT_URL}"
+          docker compose build
 
       - name: Tag and push image
         run: |
           IMAGE_ID=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          # Convert to lowercase
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-          docker tag web $IMAGE_ID:$VERSION
-          docker tag web $IMAGE_ID:latest
-          docker push $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:latest
+          
+          # Get the image ID of the locally built container
+          LOCAL_IMAGE_ID=$(docker compose images -q web)
+          
+          # Tag with version from metadata action
+          for tag in ${{ steps.meta.outputs.tags }}; do
+            docker tag $LOCAL_IMAGE_ID $tag
+            docker push $tag
+          done
