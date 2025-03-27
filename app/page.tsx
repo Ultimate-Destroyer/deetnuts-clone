@@ -7,6 +7,7 @@ import Head from "next/head";
 import { Button } from "@/components/ui/button";
 import Marquee from "react-fast-marquee";
 import SparklesText from "@/components/magicui/sparkles-text";
+import CommunityPartners from "@/components/ui/community-partners";
 
 export default function Home() {
   return (
@@ -34,6 +35,7 @@ export default function Home() {
         </section>
       </div>
       <Features />
+      <CommunityPartners />
         <Marquee
           className="py-3 font-base sm:py-5 bg-gradient-to-r from-purple-300 to-yellow-100 border-b-[2px] border-b-black"
           direction="right"
