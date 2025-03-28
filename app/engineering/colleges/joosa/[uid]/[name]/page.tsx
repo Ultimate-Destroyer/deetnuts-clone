@@ -50,11 +50,12 @@ export async function generateStaticParams() {
   })) || [];
 }
 
-export async function generateMetadata({ params }: { params: Params }) {
+export async function generateMetadata({ params }: { params: Promise<Params> }) {
+  const resolvedParams = await params;
   const { data } = await supabase
     .from('Real_JOOSA_College')
     .select('Name')
-    .eq('UID', params.uid)
+    .eq('UID', resolvedParams.uid)
     .single();
 
   if (!data) {
@@ -64,11 +65,12 @@ export async function generateMetadata({ params }: { params: Params }) {
   return { title: data.Name };
 }
 
-const InstitutePage: React.FC<{ params: Params }> = async ({ params }) => {
+const InstitutePage = async ({ params }: { params: Promise<Params> }) => {
+  const resolvedParams = await params;
   const { data: instituteData, error: instituteError } = await supabase
     .from('Real_JOOSA_College')
     .select('*')
-    .eq('UID', params.uid)
+    .eq('UID', resolvedParams.uid)
     .single();
 
   if (instituteError || !instituteData) {
@@ -78,8 +80,8 @@ const InstitutePage: React.FC<{ params: Params }> = async ({ params }) => {
   const typedInstituteData = instituteData as InstituteData;
 
   const expectedName = formatInstituteName(typedInstituteData['Name']);
-  if (params.name !== expectedName) {
-    redirect(`/engineering/colleges/joosa/${params.uid}/${expectedName}`);
+  if (resolvedParams.name !== expectedName) {
+    redirect(`/engineering/colleges/joosa/${resolvedParams.uid}/${expectedName}`);
   }
 
   // Fetch program data
@@ -98,7 +100,7 @@ const InstitutePage: React.FC<{ params: Params }> = async ({ params }) => {
     'joosa_2022_round_1', 'joosa_2022_round_2', 'joosa_2022_round_3',
     'joosa_2022_round_4', 'joosa_2022_round_5', 'joosa_2022_round_6'
   ];
-  
+
   const rankData = await Promise.all(
     tables.map(async (tableName) => {
       const [_, year, __, roundStr] = tableName.split('_');
@@ -118,7 +120,7 @@ const InstitutePage: React.FC<{ params: Params }> = async ({ params }) => {
       return data.map(record => ({ ...record, Year: parseInt(year), Round: round }));
     })
   );
-  
+
   // Combine program data with rank data
   const combinedProgramData = programData?.map(program => {
     const ranks: YearRoundData = {};

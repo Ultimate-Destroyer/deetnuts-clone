@@ -88,9 +88,6 @@ export default function NavDropdowns() {
       <Link className="text-xl font-base" href="/datasource">
         Data Source
       </Link>
-      <Link className="text-xl font-base bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 text-transparent bg-clip-text" href="/scrapers">
-        Scraper
-      </Link>
     </div>
   )
 }

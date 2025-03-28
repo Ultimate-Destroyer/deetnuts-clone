@@ -279,6 +279,7 @@ const ProgramList: React.FC<ProgramListProps> = ({ programs }) => {
             <CardTitle>Program Ranks</CardTitle>
             <CardDescription>Opening and Closing Ranks for Programs ({yearRoundValue})</CardDescription>
           </CardHeader>
+                        {/*
           <CardContent>
             <ResponsiveContainer width="100%" height={500}>
               <AreaChart
@@ -298,7 +299,8 @@ const ProgramList: React.FC<ProgramListProps> = ({ programs }) => {
                 <Area type="monotone" dataKey="closing" name="Closing Rank" stroke={chartConfig.closing.color} fill={chartConfig.closing.color} />
               </AreaChart>
             </ResponsiveContainer>
-          </CardContent>
+          </CardContent>   
+          */}
           <CardFooter>
             <div className="flex w-full items-start gap-2 text-sm">
               <div className="grid gap-2">

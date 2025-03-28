@@ -33,9 +33,6 @@ export default function Footer() {
     { name: "Sumbit Deets", href: "/sumbit" },
   ];
 
-  const About = [
-    { name: "Creator", href: "/creator" },
-  ];
 
 
 
@@ -48,7 +45,7 @@ export default function Footer() {
               <div className="text-black text-4xl font-heading">DeetNuts</div>
 
               <p className="mt-4 max-w-xs text-gray-500 leading-snug">
-                DeetNuts. does not own any of the logos of organizations displayed on this website. We do not represent any of these organizations. We do not own any of the data displayed on this website. All data is sourced from official sources.
+                deetnuts.com does not own any of the logos of organizations displayed on this website. We do not represent any of these organizations. We do not own any of the data displayed on this website. All data is sourced from official sources.
               </p>
     
               <ul className="mt-8 flex gap-6">
@@ -67,7 +64,7 @@ export default function Footer() {
               </ul>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-3">
               <div>
                 <p className="font-bold text-gray-900">Cutoffs</p>
 
@@ -109,39 +106,42 @@ export default function Footer() {
                   ))}
                 </ul>
               </div>
-              <div>
-                <p className="font-bold text-gray-900">About</p>
-
-                <ul className="mt-6 space-y-4 text-sm">
-                  {About.map((link, index) => (
-                    <li key={index}>
-                      <Link href={link.href} className="text-gray-700 transition hover:opacity-75">
-                        {link.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
 
               {/* Company, Helpful Links, and Legal sections remain unchanged */}
             </div>
           </div>
         </div>
         <div className="border-y-[1px] border-y-black">
-          <div className="py-8 px-8 mx-auto max-w-7xl">
-            <div className="sm:flex sm:justify-between">
-              <p className="text-xs text-gray-500">
-                DeetNuts, <a className="hover:underline" href="https://github.com/kewonit/deetnuts/blob/main/LICENSE"> MIT License  {new Date().getFullYear()} </a>
-              </p>
-              <ul className="mt-8 flex flex-wrap justify-start gap-4 text-xs sm:mt-0 lg:justify-end">
-                {legalLinks.map((link, index) => (
-                  <li key={index}>
-                    <Link href={link.href} className="text-gray-500 transition hover:opacity-75">
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="md:flex md:items-center md:justify-between">
+            <div className="text-center md:text-left">
+                <p className="text-xs text-gray-500">
+                  DeetNuts,{' '}
+                  <a
+                    className="hover:underline"
+                    href="https://github.com/kewonit/deetnuts/blob/main/LICENSE"
+                  >
+                    MIT License {new Date().getFullYear()}
+                  </a>
+                </p>
+                <p className="mt-2 text-sm text-gray-500">
+                  Meow 👋! I&apos;m Kartik, the creator. You can follow me on <a target="_blank" href="https://www.reddit.com/user/kewkartik/">Reddit</a> or <a target="_blank" href="https://x.com/KewKartik">Twitter</a>!
+                </p>
+              </div>
+              <div className="mt-8 md:mt-0">
+                <ul className="flex flex-wrap justify-center gap-4 md:justify-end">
+                  {legalLinks.map((link, index) => (
+                    <li key={index}>
+                      <Link
+                        href={link.href}
+                        className="text-xs text-gray-500 transition hover:text-gray-700 hover:underline"
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
