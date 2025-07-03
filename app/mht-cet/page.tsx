@@ -84,22 +84,25 @@ export default function Home() {
               return (
                 <div
                   key={key}
-                  className="relative rounded-base border-2 border-black bg-main p-5 shadow-base opacity-90 blur-sm"
+                  className="relative rounded-base border-2 border-black bg-main p-5 shadow-base opacity-90 overflow-hidden"
                 >
-                  <picture>
-                    <img
-                      className="h-8 w-8 sm:h-10 sm:w-10"
-                      src={LINKS[key].icon.src}
-                      alt={LINKS[key].title}
-                    />
-                  </picture>
-                  <p className="mt-3 text-lg font-heading sm:text-xl">
-                    {LINKS[key].title}
-                  </p>
-                  {/* Under Construction Overlay */}
-                  <div className="absolute top-2 right-2 transform rotate-12 z-10">
+                  {/* Content layer with blur */}
+                  <div className="relative z-10 blur-sm">
+                    <picture>
+                      <img
+                        className="h-8 w-8 sm:h-10 sm:w-10"
+                        src={LINKS[key].icon.src}
+                        alt={LINKS[key].title}
+                      />
+                    </picture>
+                    <p className="mt-3 text-lg font-heading sm:text-xl">
+                      {LINKS[key].title}
+                    </p>
+                  </div>
+                  {/* Under Construction Overlay (sharp) */}
+                  <div className="absolute top-2 right-2 transform rotate-12 z-20 pointer-events-none">
                     <Image
-                      className="h-20 w-20 opacity-100"
+                      className="h-20 w-20"
                       src="https://res.cloudinary.com/dfyrk32ua/image/upload/v1751487107/gdgc/pngimg.com_-_under_construction_PNG34_fr5yo4.webp"
                       alt="Under Construction"
                       width={80}
