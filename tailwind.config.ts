@@ -7,7 +7,7 @@ const config = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-	],
+  ],
   prefix: "",
   theme: {
     container: {
@@ -36,7 +36,7 @@ const config = {
         m450: { raw: '(max-width: 450px)' },
         m400: { raw: '(max-width: 400px)' },
         m350: { raw: '(max-width: 350px)' },
-      },      
+      },
       translate: {
         boxShadowX: 'var(--horizontal-box-shadow)',
         boxShadowY: 'var(--vertical-box-shadow)',
@@ -92,11 +92,14 @@ const config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
-      },   
+      },
       fontWeight: {
         base: 'var(--base-font-weight)',
         heading: 'var(--heading-font-weight)',
         black: '900',
+      },
+      fontFamily: {
+        abel: ['Abel', 'sans-serif'],
       },
       keyframes: {
         marquee: {

@@ -6,26 +6,25 @@
     style: 'normal',
   })
 */}
-import { AlertTriangle, HardDrive, RocketIcon } from 'lucide-react'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { AlertTriangle } from 'lucide-react'
+import { Alert } from '@/components/ui/alert'
 import Link from 'next/link';
 
 export default function Features() {
   const features = [
     {
-        title: 'NIRF Rankings',
-        text: 'Explore Engineering college rankings, placements, and more.',
-        image: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1721510733/deetnuts/logos/National_Institutional_Ranking_Framework_logo_xekyp5.png',
-        buttonText: 'Explore',
-        href: '/nirf'
+      title: 'NIRF Rankings',
+      text: 'Explore Engineering college rankings, placements, and more.',
+      image: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1721510733/deetnuts/logos/National_Institutional_Ranking_Framework_logo_xekyp5.png',
+      buttonText: 'Explore',
+      href: '/nirf'
     },
     {
-        title: 'MHT-CET',
-        text: 'Find cutoffs, placements, and reviews for MH Engineering Colleges.',
-        image: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1721510815/deetnuts/logos/MHT-CET_logo_wxbnlw-min_n5sbju.png',
-        buttonText: 'Explore',
-        href: '/mht-cet'
+      title: 'MHT-CET',
+      text: 'Find cutoffs, placements, and reviews for MH Engineering Colleges.',
+      image: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1721510815/deetnuts/logos/MHT-CET_logo_wxbnlw-min_n5sbju.png',
+      buttonText: 'Explore',
+      href: '/mht-cet'
     },
     {
       title: 'JOSAA Cutoffs',
@@ -35,11 +34,11 @@ export default function Features() {
       href: '/engineering/colleges/joosa'
     },
     {
-        title: 'BITS Pilani Cutoffs 2023',
-        text: 'Check the latest cutoffs for BITS Pilani campuses.',
-        image: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1721510726/deetnuts/logos/BITS_Pilani-Logo_b8sizn.svg',
-        buttonText: 'Explore',
-        href: '/engineering/colleges/bits/cutoffs/2023'
+      title: 'BITS Pilani Cutoffs 2023',
+      text: 'Check the latest cutoffs for BITS Pilani campuses.',
+      image: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1721510726/deetnuts/logos/BITS_Pilani-Logo_b8sizn.svg',
+      buttonText: 'Explore',
+      href: '/engineering/colleges/bits/cutoffs/2023'
     }
   ];
 
@@ -63,32 +62,60 @@ export default function Features() {
             </div>
           </div>
         </div>
-   
+
         <div className="mx-auto grid w-container max-w-7xl grid-cols-1 gap-5 px-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, i) => (
-                <div
-                    className="flex flex-col gap-3 rounded-base border-2 border-black bg-white p-5 shadow-base"
-                    key={i}
-                >
+          {features.map((feature, i) => {
+            const isMhtCet = feature.title === 'MHT-CET';
+            return (
+              <div
+                className={
+                  `flex flex-col gap-3 rounded-base border-2 border-black bg-white p-5 shadow-base relative overflow-hidden` +
+                  (isMhtCet ? '' : ' ') // always relative/overflow-hidden for overlay
+                }
+                key={i}
+              >
+                {/* Content layer, blurred if not MHT-CET */}
+                <div className={isMhtCet ? 'relative z-10' : 'relative z-10 blur-sm'}>
                   <picture>
-                      <img
-                          className="h-12 w-12 rounded-base object-cover"
-                          src={feature.image}
-                          alt={`${feature.title} icon`}
-                      />
-                    </picture>
-                    <h4 className="mt-2 text-xl font-heading">
-                        {feature.title}
-                    </h4>
-                    <p>{feature.text}</p>
-                    <Link 
-                        href={feature.href}
-                        className="mt-auto inline-block rounded-base border-2 border-black bg-white px-4 py-2 text-center font-bold text-black hover:bg-purple-300 hover:text-white transition-colors"
-                    >
-                        {feature.buttonText}
-                    </Link>
+                    <img
+                      className="h-12 w-12 rounded-base object-cover"
+                      src={feature.image}
+                      alt={`${feature.title} icon`}
+                    />
+                  </picture>
+                  <h4 className="mt-2 text-xl font-heading">
+                    {feature.title}
+                  </h4>
+                  <p>{feature.text}</p>
                 </div>
-            ))}
+                {/* Under Construction Overlay (sharp) */}
+                {!isMhtCet && (
+                  <div className="absolute top-2 right-2 transform rotate-12 z-20 pointer-events-none">
+                    <img
+                      className="h-20 w-20"
+                      src="https://res.cloudinary.com/dfyrk32ua/image/upload/v1751487107/gdgc/pngimg.com_-_under_construction_PNG34_fr5yo4.webp"
+                      alt="Under Construction"
+                      width={80}
+                      height={80}
+                    />
+                  </div>
+                )}
+                {/* Button */}
+                {isMhtCet ? (
+                  <Link
+                    href={feature.href}
+                    className="mt-auto inline-block rounded-base border-2 border-black bg-white px-4 py-2 text-center font-bold text-black hover:bg-purple-300 hover:text-white transition-colors"
+                  >
+                    {feature.buttonText}
+                  </Link>
+                ) : (
+                  <span className="mt-auto inline-block rounded-base border-2 border-black bg-gray-200 px-4 py-2 text-center font-bold text-gray-500 cursor-not-allowed opacity-80">
+                    Coming Soon
+                  </span>
+                )}
+              </div>
+            )
+          })}
         </div>
       </section>
 

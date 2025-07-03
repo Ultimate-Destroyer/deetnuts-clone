@@ -8,6 +8,7 @@ import GrainEffect from '@/components/graineffect';
 import { Suspense } from "react";
 import Loading from "./loading";
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as SonnerToaster } from "sonner"
 import NextTopLoader from 'nextjs-toploader';
 import MotionWrapper from '@/components/MotionWrapper';
 
@@ -47,11 +48,16 @@ export default function RootLayout({
           </MotionWrapper>
         </Suspense>
         <Toaster />
+        <SonnerToaster
+          position="top-right"
+          richColors
+          closeButton
+        />
         <GrainEffect />
         <GoogleAnalytics gaId="G-PF9S037SJQ" />
         <Footer />
         <div className="fixed bottom-0 left-0 right-0 z-50">
-          
+
         </div>
       </body>
     </html>

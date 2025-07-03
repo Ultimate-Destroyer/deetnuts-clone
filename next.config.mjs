@@ -2,7 +2,7 @@
 const nextConfig = {
   output: 'standalone',
   images: {
-    domains: ['localhost', 'deetnuts.com', 'deetnuts.site', 'cloudinary.com'],
+    domains: ['localhost', 'deetnuts.com', 'deetnuts.site', 'cloudinary.com', 'res.cloudinary.com'],
   },
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

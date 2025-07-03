@@ -8,13 +8,18 @@ interface SelectorProps {
   value: string | number;
   year?: number;
   round?: string;
+  onChange?: (value: string | number) => void;
 }
 
-export default function Selector({ type, value, year = 2023, round = 'round-one' }: SelectorProps) {
+export default function Selector({ type, value, year = 2023, round = 'round-one', onChange }: SelectorProps) {
   const router = useRouter();
 
   const handleChange = (selectedValue: string) => {
-    router.push(`/mht-cet/all-india-cutoffs/${type === 'year' ? selectedValue : year}/${type === 'round' ? selectedValue : round}`);
+    if (onChange) {
+      onChange(selectedValue);
+    } else {
+      router.push(`/mht-cet/all-india-cutoffs/${type === 'year' ? selectedValue : year}/${type === 'round' ? selectedValue : round}`);
+    }
   };
 
   const options = type === 'year' ? ['2023'] : ['round-one'];
