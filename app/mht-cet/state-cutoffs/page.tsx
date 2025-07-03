@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { getPocketBaseClient } from '@/lib/pocketbaseClient';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Filter, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Loader2, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -57,6 +56,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion";
 import { BookUser, Building, GraduationCap, Info, Lightbulb, MapPin, ShieldCheck, Users, Video } from 'lucide-react';
+import CategoryFlowChart from '@/components/CategoryFlowChart';
 
 // Types
 interface CutoffRecord {
@@ -70,6 +70,8 @@ interface CutoffRecord {
     cutoff_score: string;
     last_rank: string;
     total_admitted: number;
+    status: string;
+    home_university: string;
     created: string;
     updated: string;
 }
@@ -77,8 +79,9 @@ interface CutoffRecord {
 interface FilterState {
     search: string;
     categories: string[];
-    seatAllocations: string[];
     courses: string[];
+    statuses: string[];
+    homeUniversities: string[];
     percentileInput: string;
     sortBy: string;
     sortOrder: 'asc' | 'desc';
@@ -87,8 +90,9 @@ interface FilterState {
 interface PendingFilters {
     search: string;
     categories: string[];
-    seatAllocations: string[];
     courses: string[];
+    statuses: string[];
+    homeUniversities: string[];
     percentileInput: string;
 }
 
@@ -260,11 +264,53 @@ const COURSE_GROUPS = {
     ]
 };
 
-const SEAT_ALLOCATION_OPTIONS = [
-    { value: 'OTHER_TO_OTHER', label: 'Other to Other University' },
-    { value: 'HOME_TO_OTHER', label: 'Home to Other University' },
-    { value: 'HOME_TO_HOME', label: 'Home to Home University' },
-    { value: 'STATE_LEVEL', label: 'State Level Seats' }
+const STATUS_OPTIONS = [
+    { value: 'Deemed University Autonomous', label: 'Deemed University Autonomous' },
+    { value: 'Government', label: 'Government' },
+    { value: 'Government Autonomous', label: 'Government Autonomous' },
+    { value: 'Government-Aided Autonomous', label: 'Government-Aided Autonomous' },
+    { value: 'Un-Aided', label: 'Un-Aided' },
+    { value: 'Un-Aided Autonomous', label: 'Un-Aided Autonomous' },
+    { value: 'Un-Aided Autonomous Linguistic Minority - Gujarathi', label: 'Un-Aided Autonomous Linguistic Minority - Gujarathi' },
+    { value: 'Un-Aided Autonomous Linguistic Minority - Gujarathi(Jain)', label: 'Un-Aided Autonomous Linguistic Minority - Gujarathi(Jain)' },
+    { value: 'Un-Aided Autonomous Linguistic Minority - Hindi', label: 'Un-Aided Autonomous Linguistic Minority - Hindi' },
+    { value: 'Un-Aided Autonomous Linguistic Minority - Malyalam', label: 'Un-Aided Autonomous Linguistic Minority - Malyalam' },
+    { value: 'Un-Aided Autonomous Linguistic Minority - Sindhi', label: 'Un-Aided Autonomous Linguistic Minority - Sindhi' },
+    { value: 'Un-Aided Autonomous Linguistic Minority - Tamil', label: 'Un-Aided Autonomous Linguistic Minority - Tamil' },
+    { value: 'Un-Aided Autonomous Religious Minority - Christian', label: 'Un-Aided Autonomous Religious Minority - Christian' },
+    { value: 'Un-Aided Autonomous Religious Minority - Jain', label: 'Un-Aided Autonomous Religious Minority - Jain' },
+    { value: 'Un-Aided Linguistic Minority - Gujar', label: 'Un-Aided Linguistic Minority - Gujar' },
+    { value: 'Un-Aided Linguistic Minority - Gujarathi', label: 'Un-Aided Linguistic Minority - Gujarathi' },
+    { value: 'Un-Aided Linguistic Minority - Hindi', label: 'Un-Aided Linguistic Minority - Hindi' },
+    { value: 'Un-Aided Linguistic Minority - Malyalam', label: 'Un-Aided Linguistic Minority - Malyalam' },
+    { value: 'Un-Aided Linguistic Minority - Punjabi', label: 'Un-Aided Linguistic Minority - Punjabi' },
+    { value: 'Un-Aided Linguistic Minority - Sindhi', label: 'Un-Aided Linguistic Minority - Sindhi' },
+    { value: 'Un-Aided Religious Minority - Christian', label: 'Un-Aided Religious Minority - Christian' },
+    { value: 'Un-Aided Religious Minority - Jain', label: 'Un-Aided Religious Minority - Jain' },
+    { value: 'Un-Aided Religious Minority - Muslim', label: 'Un-Aided Religious Minority - Muslim' },
+    { value: 'Un-Aided Religious Minority - Roman Catholics', label: 'Un-Aided Religious Minority - Roman Catholics' },
+    { value: 'University', label: 'University' },
+    { value: 'University Autonomous', label: 'University Autonomous' },
+    { value: 'University Department', label: 'University Department' },
+    { value: 'University Managed (Un-Aided)', label: 'University Managed (Un-Aided)' },
+    { value: 'University Managed Autonomous', label: 'University Managed Autonomous' }
+];
+
+const HOME_UNIVERSITY_OPTIONS = [
+    { value: 'Autonomous Institute', label: 'Autonomous Institute' },
+    { value: 'Deemed to be University', label: 'Deemed to be University' },
+    { value: 'Dr. Babasaheb Ambedkar Marathwada University', label: 'Dr. Babasaheb Ambedkar Marathwada University' },
+    { value: 'Dr. Babasaheb Ambedkar Technological University Lonere', label: 'Dr. Babasaheb Ambedkar Technological University Lonere' },
+    { value: 'Gondwana University', label: 'Gondwana University' },
+    { value: 'Kavayitri Bahinabai Chaudhari North Maharashtra University Jalgaon', label: 'Kavayitri Bahinabai Chaudhari North Maharashtra University Jalgaon' },
+    { value: 'Mumbai University', label: 'Mumbai University' },
+    { value: 'Punyashlok Ahilyadevi Holkar Solapur University', label: 'Punyashlok Ahilyadevi Holkar Solapur University' },
+    { value: 'Rashtrasant Tukadoji Maharaj Nagpur University', label: 'Rashtrasant Tukadoji Maharaj Nagpur University' },
+    { value: 'SNDT Women s University', label: 'SNDT Women s University' },
+    { value: 'Sant Gadge Baba Amravati University', label: 'Sant Gadge Baba Amravati University' },
+    { value: 'Savitribai Phule Pune University', label: 'Savitribai Phule Pune University' },
+    { value: 'Shivaji University', label: 'Shivaji University' },
+    { value: 'Swami Ramanand Teerth Marathwada University Nanded', label: 'Swami Ramanand Teerth Marathwada University Nanded' }
 ];
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100, 200];
@@ -285,7 +331,7 @@ const calculatePercentile = (rank: string | number): number => {
 const getPrecisePercentileRange = (targetPercentile: number): { min: number; max: number } => {
     // Use higher precision (10 decimal places) to avoid floating-point errors
     const max = Math.round(targetPercentile * 10000000000) / 10000000000;
-    const min = Math.max(0, Math.round((targetPercentile - 1) * 10000000000) / 10000000000);
+    const min = Math.max(0, Math.round((targetPercentile - 10) * 10000000000) / 10000000000);
     return { min, max };
 };
 
@@ -318,8 +364,9 @@ export default function StateCutoffsPage() {
     const [filters, setFilters] = useState<FilterState>({
         search: '',
         categories: [],
-        seatAllocations: [],
         courses: [],
+        statuses: [],
+        homeUniversities: [],
         percentileInput: '',
         sortBy: 'last_rank',
         sortOrder: 'desc'
@@ -329,8 +376,9 @@ export default function StateCutoffsPage() {
     const [pendingFilters, setPendingFilters] = useState<PendingFilters>({
         search: '',
         categories: [],
-        seatAllocations: [],
         courses: [],
+        statuses: [],
+        homeUniversities: [],
         percentileInput: ''
     });
 
@@ -344,6 +392,7 @@ export default function StateCutoffsPage() {
     const currentRequestParamsRef = useRef<string>('');
     const requestIdRef = useRef<number>(0);
     const lastPaginationClickRef = useRef<number>(0);
+    const prevItemsPerPageRef = useRef<number>(itemsPerPage);
 
     // Table state
     const [sorting, setSorting] = useState<SortingState>([{ id: 'cutoff_score', desc: true }])
@@ -488,41 +537,6 @@ export default function StateCutoffsPage() {
                 size: 100,
             },
             {
-                accessorKey: "seat_allocation_section",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Seat Allocation
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
-                },
-                cell: ({ row }) => {
-                    const value = row.getValue("seat_allocation_section") as string;
-                    const option = SEAT_ALLOCATION_OPTIONS.find(s => s.value === value);
-                    const label = option?.label || value;
-                    return (
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="font-abel text-xs sm:text-sm max-w-[120px] sm:max-w-[150px] truncate cursor-help font-medium px-2 sm:px-3">
-                                        {label}
-                                    </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="font-abel text-sm">{label}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    );
-                },
-                size: 150,
-            },
-            {
                 accessorKey: "total_admitted",
                 header: ({ column }) => {
                     return (
@@ -615,6 +629,66 @@ export default function StateCutoffsPage() {
                 ),
                 size: 110,
             },
+            {
+                accessorKey: "status",
+                header: ({ column }) => {
+                    return (
+                        <Button
+                            variant="link"
+                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                        >
+                            Status
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        </Button>
+                    )
+                },
+                cell: ({ row }) => (
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="font-abel text-xs sm:text-sm w-[150px] sm:w-[180px] font-medium cursor-help px-2 sm:px-3 truncate">
+                                    {row.getValue("status")}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="font-abel text-sm max-w-md">{row.getValue("status")}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                ),
+                size: 180,
+            },
+            {
+                accessorKey: "home_university",
+                header: ({ column }) => {
+                    return (
+                        <Button
+                            variant="link"
+                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                        >
+                            Home University
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        </Button>
+                    )
+                },
+                cell: ({ row }) => (
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="font-abel text-xs sm:text-sm w-[200px] sm:w-[250px] font-medium cursor-help px-2 sm:px-3 truncate">
+                                    {row.getValue("home_university")}
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p className="font-abel text-sm max-w-md">{row.getValue("home_university")}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                ),
+                size: 250,
+            },
         ],
         []
     );
@@ -651,8 +725,9 @@ export default function StateCutoffsPage() {
         const filtersChanged = (
             pendingFilters.search !== filters.search ||
             JSON.stringify(pendingFilters.categories) !== JSON.stringify(filters.categories) ||
-            JSON.stringify(pendingFilters.seatAllocations) !== JSON.stringify(filters.seatAllocations) ||
             JSON.stringify(pendingFilters.courses) !== JSON.stringify(filters.courses) ||
+            JSON.stringify(pendingFilters.statuses) !== JSON.stringify(filters.statuses) ||
+            JSON.stringify(pendingFilters.homeUniversities) !== JSON.stringify(filters.homeUniversities) ||
             pendingFilters.percentileInput !== filters.percentileInput
         );
         setHasUnsavedChanges(filtersChanged);
@@ -660,10 +735,11 @@ export default function StateCutoffsPage() {
 
     useEffect(() => {
         table.setPageSize(itemsPerPage);
-        // Reset to first page when items per page changes
-        if (currentPage > 1) {
+        // Reset to first page when items per page changes (but not on currentPage changes)
+        if (prevItemsPerPageRef.current !== itemsPerPage && currentPage > 1) {
             setCurrentPage(1);
         }
+        prevItemsPerPageRef.current = itemsPerPage;
     }, [itemsPerPage, table, currentPage]);
 
     // Ensure current page is valid when total items change
@@ -687,15 +763,14 @@ export default function StateCutoffsPage() {
             return;
         }
 
-        console.log('Fetching records for page:', currentPage, 'with filters:', debouncedFilters);
-
         const requestBody = {
             page: currentPage,
             perPage: itemsPerPage,
             search: debouncedFilters.search,
             categories: debouncedFilters.categories,
-            seatAllocations: debouncedFilters.seatAllocations,
             courses: debouncedFilters.courses,
+            statuses: debouncedFilters.statuses,
+            homeUniversities: debouncedFilters.homeUniversities,
             percentileInput: debouncedFilters.percentileInput,
             sortBy: debouncedFilters.sortBy,
             sortOrder: debouncedFilters.sortOrder,
@@ -704,7 +779,7 @@ export default function StateCutoffsPage() {
         const cacheKey = JSON.stringify(requestBody);
 
         // Check if this is the same request type (only different pagination)
-        const currentRequestKey = `${debouncedFilters.search}-${debouncedFilters.categories.join(',')}-${debouncedFilters.seatAllocations.join(',')}-${debouncedFilters.courses.join(',')}-${debouncedFilters.percentileInput}`;
+        const currentRequestKey = `${debouncedFilters.search}-${debouncedFilters.categories.join(',')}-${debouncedFilters.courses.join(',')}-${debouncedFilters.statuses.join(',')}-${debouncedFilters.homeUniversities.join(',')}-${debouncedFilters.percentileInput}`;
         const isOnlyPaginationChange = currentRequestParamsRef.current === currentRequestKey;
 
         // Check cache first
@@ -736,8 +811,6 @@ export default function StateCutoffsPage() {
         setLoading(true);
 
         try {
-            console.log(`Making API POST request ${requestId} with body:`, requestBody);
-
             const response = await fetch(`/api/mht-cet/state-cutoffs`, {
                 method: 'POST',
                 signal: abortControllerRef.current.signal,
@@ -750,7 +823,6 @@ export default function StateCutoffsPage() {
 
             // Check if this is still the latest request
             if (requestId !== requestIdRef.current) {
-                console.log(`Request ${requestId} is outdated, ignoring response`);
                 return;
             }
 
@@ -762,15 +834,12 @@ export default function StateCutoffsPage() {
 
             // Double-check we're still the latest request
             if (requestId !== requestIdRef.current) {
-                console.log(`Request ${requestId} is outdated after parsing, ignoring response`);
                 return;
             }
 
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch data');
             }
-
-            console.log(`Request ${requestId} completed successfully`);
 
             // Cache the result (limit cache size to prevent memory issues)
             if (cacheRef.current.size > 50) {
@@ -794,13 +863,11 @@ export default function StateCutoffsPage() {
         } catch (error: any) {
             // Check if this is still the latest request
             if (requestId !== requestIdRef.current) {
-                console.log(`Request ${requestId} error is outdated, ignoring`);
                 return;
             }
 
             if (error.name === 'AbortError') {
                 // Request was cancelled, don't show error
-                console.log(`Request ${requestId} was cancelled`);
                 return;
             }
 
@@ -832,7 +899,7 @@ export default function StateCutoffsPage() {
                 clearTimeout(paginationTimeoutRef.current);
             }
         };
-    }, [fetchRecords]);
+    }, [fetchRecords, currentPage]);
 
     // Cleanup effect
     useEffect(() => {
@@ -855,21 +922,30 @@ export default function StateCutoffsPage() {
         }));
     }, []);
 
-    const handleSeatAllocationToggle = useCallback((seatAllocation: string) => {
-        setPendingFilters(prev => ({
-            ...prev,
-            seatAllocations: prev.seatAllocations.includes(seatAllocation)
-                ? prev.seatAllocations.filter(s => s !== seatAllocation)
-                : [...prev.seatAllocations, seatAllocation]
-        }));
-    }, []);
-
     const handleCourseToggle = useCallback((course: string) => {
         setPendingFilters(prev => ({
             ...prev,
             courses: prev.courses.includes(course)
                 ? prev.courses.filter(c => c !== course)
                 : [...prev.courses, course]
+        }));
+    }, []);
+
+    const handleStatusToggle = useCallback((status: string) => {
+        setPendingFilters(prev => ({
+            ...prev,
+            statuses: prev.statuses.includes(status)
+                ? prev.statuses.filter(s => s !== status)
+                : [...prev.statuses, status]
+        }));
+    }, []);
+
+    const handleHomeUniversityToggle = useCallback((homeUniversity: string) => {
+        setPendingFilters(prev => ({
+            ...prev,
+            homeUniversities: prev.homeUniversities.includes(homeUniversity)
+                ? prev.homeUniversities.filter(h => h !== homeUniversity)
+                : [...prev.homeUniversities, homeUniversity]
         }));
     }, []);
 
@@ -881,8 +957,9 @@ export default function StateCutoffsPage() {
             ...prev,
             search: pendingFilters.search,
             categories: pendingFilters.categories,
-            seatAllocations: pendingFilters.seatAllocations,
             courses: pendingFilters.courses,
+            statuses: pendingFilters.statuses,
+            homeUniversities: pendingFilters.homeUniversities,
             percentileInput: pendingFilters.percentileInput
         }));
         setSorting([{ id: 'cutoff_score', desc: true }]); // Ensure default sorting
@@ -894,8 +971,9 @@ export default function StateCutoffsPage() {
         const clearedFilters = {
             search: '',
             categories: [],
-            seatAllocations: [],
             courses: [],
+            statuses: [],
+            homeUniversities: [],
             percentileInput: ''
         };
         // Clear cache when filters are cleared
@@ -915,15 +993,12 @@ export default function StateCutoffsPage() {
         const now = Date.now();
         const timeSinceLastClick = now - lastPaginationClickRef.current;
 
-        // Throttle pagination clicks to prevent rapid requests
-        if (timeSinceLastClick < 200) { // 200ms throttle
-            return;
-        }
-
-        lastPaginationClickRef.current = now;
-
+        // Always allow the page change, just throttle the timing
         if (newPage >= 1 && newPage <= Math.ceil(memoizedTotalItems / itemsPerPage)) {
             setCurrentPage(newPage);
+
+            // Update the timestamp to prevent rapid successive clicks
+            lastPaginationClickRef.current = now;
         }
     }, [memoizedTotalItems, itemsPerPage]);
 
@@ -938,18 +1013,6 @@ export default function StateCutoffsPage() {
                     <p className="text-muted-foreground text-sm md:text-base lg:text-lg font-medium mt-1 md:mt-2 font-abel">
                         Round 1 cutoffs for engineering colleges
                     </p>
-                </div>
-                <div className="flex gap-2 flex-shrink-0 w-full md:w-auto">
-                    <Button
-                        variant="neutral"
-                        onClick={fetchRecords}
-                        disabled={loading}
-                        className="font-abel text-sm md:text-base px-3 md:px-4 py-2 w-full md:w-auto"
-                    >
-                        <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                        <span className="hidden lg:inline">Refresh</span>
-                        <span className="inline lg:hidden">↻</span>
-                    </Button>
                 </div>
             </div>
 
@@ -982,7 +1045,7 @@ export default function StateCutoffsPage() {
                         {/* Percentile Input */}
                         <div className="space-y-2">
                             <Label className="text-sm md:text-base font-medium flex items-center gap-2 font-abel">
-                                Target Percentile (-1 range)
+                                Target Percentile (-10 range)
                             </Label>
                             <Input
                                 placeholder="Enter percentile (e.g., 95.5)"
@@ -1012,15 +1075,15 @@ export default function StateCutoffsPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                         {/* Enhanced Category Filter */}
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base">
+                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base hover:bg-blue-50 border-2 hover:border-blue-300 transition-all duration-200">
                                     <span className="truncate mr-2">Categories</span>
                                     <div className="flex items-center gap-2 flex-shrink-0">
                                         {pendingFilters.categories.length > 0 && (
-                                            <Badge variant="neutral" className="ml-2 text-xs px-2 py-0 font-abel">
+                                            <Badge variant="default" className="ml-2 text-xs px-2 py-0 font-abel bg-blue-600 text-white">
                                                 {pendingFilters.categories.length}
                                             </Badge>
                                         )}
@@ -1028,32 +1091,32 @@ export default function StateCutoffsPage() {
                                     </div>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 md:w-96 p-0 max-h-[80vh] overflow-hidden">
-                                <div className="p-4">
+                            <PopoverContent className="w-96 md:w-[450px] p-0 max-h-[85vh] overflow-hidden shadow-xl border-2">
+                                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
                                     <div className="flex justify-between items-center mb-3">
-                                        <h4 className="font-medium font-abel text-sm md:text-base">Select Categories</h4>
+                                        <h4 className="font-semibold font-abel text-base md:text-lg text-blue-900">Select Categories</h4>
                                         <Button
                                             variant="link"
                                             size="sm"
                                             onClick={() => {
                                                 setPendingFilters(prev => ({ ...prev, categories: [] }));
                                             }}
-                                            className="font-abel text-xs md:text-sm"
+                                            className="font-abel text-xs md:text-sm text-blue-700 hover:text-blue-900 hover:bg-blue-100"
                                         >
                                             Clear All
                                         </Button>
                                     </div>
                                 </div>
-                                <ScrollArea className="h-80">
-                                    <div className="px-4 pb-4 space-y-4">
+                                <ScrollArea className="h-96 bg-white">
+                                    <div className="px-4 pb-4 pt-2 space-y-5">
                                         {Object.entries(CATEGORY_GROUPS).map(([group, categories]) => (
-                                            <div key={group}>
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <Label className="text-sm font-medium text-foreground font-abel">{group}</Label>
+                                            <div key={group} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <Label className="text-sm font-semibold text-gray-800 font-abel">{group}</Label>
                                                     <Button
                                                         variant="link"
                                                         size="sm"
-                                                        className="h-auto p-0 text-xs font-abel"
+                                                        className="h-auto p-1 text-xs font-abel text-blue-600 hover:text-blue-800 hover:bg-blue-100"
                                                         onClick={() => {
                                                             const allSelected = categories.every(cat => pendingFilters.categories.includes(cat));
                                                             if (allSelected) {
@@ -1074,19 +1137,19 @@ export default function StateCutoffsPage() {
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2">
                                                     {categories.map((category) => (
-                                                        <div key={category} className="flex items-center space-x-2">
+                                                        <div key={category} className="flex items-center space-x-2 p-1 hover:bg-white rounded transition-colors">
                                                             <Checkbox
                                                                 id={category}
                                                                 checked={pendingFilters.categories.includes(category)}
                                                                 onCheckedChange={() => handleCategoryToggle(category)}
+                                                                className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                                                             />
-                                                            <Label htmlFor={category} className="text-xs font-abel cursor-pointer leading-tight">
+                                                            <Label htmlFor={category} className="text-xs font-abel cursor-pointer leading-tight text-gray-700 hover:text-gray-900">
                                                                 {category}
                                                             </Label>
                                                         </div>
                                                     ))}
                                                 </div>
-                                                <Separator className="mt-3" />
                                             </div>
                                         ))}
                                     </div>
@@ -1097,11 +1160,11 @@ export default function StateCutoffsPage() {
                         {/* Enhanced Course Filter */}
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base">
+                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base hover:bg-green-50 border-2 hover:border-green-300 transition-all duration-200">
                                     <span className="truncate mr-2">Courses</span>
                                     <div className="flex items-center gap-2 flex-shrink-0">
                                         {pendingFilters.courses.length > 0 && (
-                                            <Badge variant="neutral" className="ml-2 text-xs px-2 py-0 font-abel">
+                                            <Badge variant="default" className="ml-2 text-xs px-2 py-0 font-abel bg-green-600 text-white">
                                                 {pendingFilters.courses.length}
                                             </Badge>
                                         )}
@@ -1109,32 +1172,32 @@ export default function StateCutoffsPage() {
                                     </div>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 md:w-96 p-0 max-h-[80vh] overflow-hidden">
-                                <div className="p-4">
+                            <PopoverContent className="w-96 md:w-[500px] p-0 max-h-[85vh] overflow-hidden shadow-xl border-2">
+                                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-b">
                                     <div className="flex justify-between items-center mb-3">
-                                        <h4 className="font-medium font-abel text-sm md:text-base">Select Courses</h4>
+                                        <h4 className="font-semibold font-abel text-base md:text-lg text-green-900">Select Courses</h4>
                                         <Button
                                             variant="link"
                                             size="sm"
                                             onClick={() => {
                                                 setPendingFilters(prev => ({ ...prev, courses: [] }));
                                             }}
-                                            className="font-abel text-xs md:text-sm"
+                                            className="font-abel text-xs md:text-sm text-green-700 hover:text-green-900 hover:bg-green-100"
                                         >
                                             Clear All
                                         </Button>
                                     </div>
                                 </div>
-                                <ScrollArea className="h-80">
-                                    <div className="px-4 pb-4 space-y-4">
+                                <ScrollArea className="h-96 bg-white">
+                                    <div className="px-4 pb-4 pt-2 space-y-5">
                                         {Object.entries(COURSE_GROUPS).map(([group, courses]) => (
-                                            <div key={group}>
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <Label className="text-sm font-medium text-foreground font-abel">{group}</Label>
+                                            <div key={group} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <Label className="text-sm font-semibold text-gray-800 font-abel">{group}</Label>
                                                     <Button
                                                         variant="link"
                                                         size="sm"
-                                                        className="h-auto p-0 text-xs font-abel"
+                                                        className="h-auto p-1 text-xs font-abel text-green-600 hover:text-green-800 hover:bg-green-100"
                                                         onClick={() => {
                                                             const allSelected = courses.every(course => pendingFilters.courses.includes(course));
                                                             if (allSelected) {
@@ -1153,22 +1216,21 @@ export default function StateCutoffsPage() {
                                                         {courses.every(course => pendingFilters.courses.includes(course)) ? 'Deselect All' : 'Select All'}
                                                     </Button>
                                                 </div>
-                                                <div className="space-y-1">
+                                                <div className="space-y-2">
                                                     {courses.map((course) => (
-                                                        <div key={course} className="flex items-start space-x-2">
+                                                        <div key={course} className="flex items-start space-x-2 p-1 hover:bg-white rounded transition-colors">
                                                             <Checkbox
                                                                 id={course}
                                                                 checked={pendingFilters.courses.includes(course)}
                                                                 onCheckedChange={() => handleCourseToggle(course)}
-                                                                className="mt-1"
+                                                                className="mt-1 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
                                                             />
-                                                            <Label htmlFor={course} className="text-xs font-abel cursor-pointer leading-tight">
+                                                            <Label htmlFor={course} className="text-xs font-abel cursor-pointer leading-tight text-gray-700 hover:text-gray-900">
                                                                 {course}
                                                             </Label>
                                                         </div>
                                                     ))}
                                                 </div>
-                                                <Separator className="mt-3" />
                                             </div>
                                         ))}
                                     </div>
@@ -1176,33 +1238,48 @@ export default function StateCutoffsPage() {
                             </PopoverContent>
                         </Popover>
 
-                        {/* Seat Allocation Filter */}
+                        {/* Enhanced Status Filter */}
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base">
-                                    <span className="truncate mr-2">Seat Allocation</span>
+                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base hover:bg-orange-50 border-2 hover:border-orange-300 transition-all duration-200">
+                                    <span className="truncate mr-2">Status</span>
                                     <div className="flex items-center gap-2 flex-shrink-0">
-                                        {pendingFilters.seatAllocations.length > 0 && (
-                                            <Badge variant="neutral" className="ml-2 text-xs px-2 py-0 font-abel">
-                                                {pendingFilters.seatAllocations.length}
+                                        {pendingFilters.statuses.length > 0 && (
+                                            <Badge variant="default" className="ml-2 text-xs px-2 py-0 font-abel bg-orange-600 text-white">
+                                                {pendingFilters.statuses.length}
                                             </Badge>
                                         )}
                                         <Filter className="h-4 w-4" />
                                     </div>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80 max-h-[80vh] overflow-hidden">
-                                <ScrollArea className="max-h-80">
-                                    <div className="space-y-3 p-4">
-                                        {SEAT_ALLOCATION_OPTIONS.map((option) => (
-                                            <div key={option.value} className="flex items-start space-x-2">
+                            <PopoverContent className="w-80 md:w-[450px] p-0 max-h-[85vh] overflow-hidden shadow-xl border-2">
+                                <div className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 border-b">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h4 className="font-semibold font-abel text-base md:text-lg text-orange-900">Select Status</h4>
+                                        <Button
+                                            variant="link"
+                                            size="sm"
+                                            onClick={() => {
+                                                setPendingFilters(prev => ({ ...prev, statuses: [] }));
+                                            }}
+                                            className="font-abel text-xs md:text-sm text-orange-700 hover:text-orange-900 hover:bg-orange-100"
+                                        >
+                                            Clear All
+                                        </Button>
+                                    </div>
+                                </div>
+                                <ScrollArea className="h-96 bg-white">
+                                    <div className="px-4 pb-4 pt-2 space-y-2">
+                                        {STATUS_OPTIONS.map((option) => (
+                                            <div key={option.value} className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded transition-colors border border-gray-100">
                                                 <Checkbox
                                                     id={option.value}
-                                                    checked={pendingFilters.seatAllocations.includes(option.value)}
-                                                    onCheckedChange={() => handleSeatAllocationToggle(option.value)}
-                                                    className="mt-1"
+                                                    checked={pendingFilters.statuses.includes(option.value)}
+                                                    onCheckedChange={() => handleStatusToggle(option.value)}
+                                                    className="mt-1 data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
                                                 />
-                                                <Label htmlFor={option.value} className="text-sm font-abel leading-tight">
+                                                <Label htmlFor={option.value} className="text-xs font-abel leading-tight cursor-pointer text-gray-700 hover:text-gray-900 flex-1">
                                                     {option.label}
                                                 </Label>
                                             </div>
@@ -1212,12 +1289,63 @@ export default function StateCutoffsPage() {
                             </PopoverContent>
                         </Popover>
 
-                        {/* Search and Clear Buttons */}
+                        {/* Enhanced Home University Filter */}
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base hover:bg-teal-50 border-2 hover:border-teal-300 transition-all duration-200">
+                                    <span className="truncate mr-2">Home University</span>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                        {pendingFilters.homeUniversities.length > 0 && (
+                                            <Badge variant="default" className="ml-2 text-xs px-2 py-0 font-abel bg-teal-600 text-white">
+                                                {pendingFilters.homeUniversities.length}
+                                            </Badge>
+                                        )}
+                                        <Filter className="h-4 w-4" />
+                                    </div>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 md:w-[450px] p-0 max-h-[85vh] overflow-hidden shadow-xl border-2">
+                                <div className="p-4 bg-gradient-to-r from-teal-50 to-cyan-50 border-b">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h4 className="font-semibold font-abel text-base md:text-lg text-teal-900">Select Home University</h4>
+                                        <Button
+                                            variant="link"
+                                            size="sm"
+                                            onClick={() => {
+                                                setPendingFilters(prev => ({ ...prev, homeUniversities: [] }));
+                                            }}
+                                            className="font-abel text-xs md:text-sm text-teal-700 hover:text-teal-900 hover:bg-teal-100"
+                                        >
+                                            Clear All
+                                        </Button>
+                                    </div>
+                                </div>
+                                <ScrollArea className="h-96 bg-white">
+                                    <div className="px-4 pb-4 pt-2 space-y-2">
+                                        {HOME_UNIVERSITY_OPTIONS.map((option) => (
+                                            <div key={option.value} className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded transition-colors border border-gray-100">
+                                                <Checkbox
+                                                    id={option.value}
+                                                    checked={pendingFilters.homeUniversities.includes(option.value)}
+                                                    onCheckedChange={() => handleHomeUniversityToggle(option.value)}
+                                                    className="mt-1 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                                                />
+                                                <Label htmlFor={option.value} className="text-xs font-abel leading-tight cursor-pointer text-gray-700 hover:text-gray-900 flex-1">
+                                                    {option.label}
+                                                </Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
+                            </PopoverContent>
+                        </Popover>
+
+                        {/* Enhanced Search and Clear Buttons */}
                         <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto md:ml-auto col-span-full">
                             <Button
                                 onClick={applyFilters}
                                 disabled={!pendingFilters.percentileInput || !hasUnsavedChanges || isSearching}
-                                className="px-6 py-2 font-abel text-sm md:text-base w-full md:w-auto h-12"
+                                className="px-6 py-3 font-abel text-sm md:text-base w-full md:w-auto h-12 bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
                             >
                                 {isSearching || loading ? (
                                     <>
@@ -1236,9 +1364,9 @@ export default function StateCutoffsPage() {
                             <Button
                                 variant="neutral"
                                 onClick={clearAllFilters}
-                                className="px-4 py-2 font-abel text-sm md:text-base w-full md:w-auto h-12"
+                                className="px-4 py-3 font-abel text-sm md:text-base w-full md:w-auto h-12 border-2 hover:bg-gray-50 transition-all duration-200 shadow-md hover:shadow-lg"
                             >
-                                <span className="hidden md:inline">Clear All</span>
+                                <span className="hidden md:inline">Clear All Filters</span>
                                 <span className="md:hidden">Clear</span>
                             </Button>
                         </div>
@@ -1264,74 +1392,76 @@ export default function StateCutoffsPage() {
             </Card>
 
             {/* Active Filters Display */}
-            {(filters.percentileInput || filters.categories.length > 0 || filters.seatAllocations.length > 0 || filters.courses.length > 0) && (
-                <Card className="bg-blue-50/50 border-blue-200">
-                    <CardContent className="p-3 sm:p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                            <Filter className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                            <h3 className="text-sm sm:text-base font-semibold text-blue-900 font-abel">Active Filters</h3>
+            {(filters.percentileInput || filters.categories.length > 0 || filters.courses.length > 0 || filters.statuses.length > 0 || filters.homeUniversities.length > 0) && (
+                <Card className="bg-blue-100 border-blue-300 rounded-lg shadow-md">
+                    <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <Filter className="h-6 w-6 text-blue-700 flex-shrink-0" />
+                            <h3 className="text-lg sm:text-xl font-bold text-blue-900 font-abel">Active Filters</h3>
                         </div>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-3">
                             {filters.percentileInput && (
-                                <Badge variant="default" className="bg-blue-100 text-blue-800 font-abel text-xs sm:text-sm">
+                                <Badge variant="default" className="bg-blue-200 text-blue-900 font-abel text-sm sm:text-base">
                                     Target: {filters.percentileInput}%
                                 </Badge>
                             )}
                             {filters.categories.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                    <Badge variant="default" className="bg-green-100 text-green-800 font-abel text-xs sm:text-sm">
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="default" className="bg-green-200 text-green-900 font-abel text-sm sm:text-base">
                                         Categories ({filters.categories.length})
                                     </Badge>
-                                    {filters.categories.slice(0, 2).map((category, index) => (
-                                        <Badge key={index} variant="neutral" className="bg-green-50 text-green-700 font-abel text-xs hidden sm:inline-flex">
+                                    {filters.categories.map((category, index) => (
+                                        <Badge key={index} variant="neutral" className="bg-green-100 text-green-800 font-abel text-sm sm:text-base">
                                             {category}
                                         </Badge>
                                     ))}
-                                    {filters.categories.length > 2 && (
-                                        <Badge variant="neutral" className="bg-green-50 text-green-700 font-abel text-xs hidden sm:inline-flex">
-                                            +{filters.categories.length - 2} more
-                                        </Badge>
-                                    )}
-                                </div>
-                            )}
-                            {filters.seatAllocations.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                    <Badge variant="default" className="bg-purple-100 text-purple-800 font-abel text-xs sm:text-sm">
-                                        Seats ({filters.seatAllocations.length})
-                                    </Badge>
-                                    {filters.seatAllocations.slice(0, 1).map((allocation, index) => {
-                                        const option = SEAT_ALLOCATION_OPTIONS.find(s => s.value === allocation);
-                                        const label = option?.label || allocation;
-                                        return (
-                                            <Badge key={index} variant="neutral" className="bg-purple-50 text-purple-700 font-abel text-xs hidden sm:inline-flex">
-                                                {label}
-                                            </Badge>
-                                        );
-                                    })}
-                                    {filters.seatAllocations.length > 1 && (
-                                        <Badge variant="neutral" className="bg-purple-50 text-purple-700 font-abel text-xs hidden sm:inline-flex">
-                                            +{filters.seatAllocations.length - 1} more
-                                        </Badge>
-                                    )}
                                 </div>
                             )}
                             {filters.courses.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                    <Badge variant="default" className="bg-orange-100 text-orange-800 font-abel text-xs sm:text-sm">
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="default" className="bg-orange-200 text-orange-900 font-abel text-sm sm:text-base">
                                         Courses ({filters.courses.length})
                                     </Badge>
-                                    {filters.courses.slice(0, 1).map((course, index) => (
-                                        <Badge key={index} variant="neutral" className="bg-orange-50 text-orange-700 font-abel text-xs hidden sm:inline-flex">
+                                    {filters.courses.map((course, index) => (
+                                        <Badge key={index} variant="neutral" className="bg-orange-100 text-orange-800 font-abel text-sm sm:text-base">
                                             {course.length > 20 ? `${course.substring(0, 20)}...` : course}
                                         </Badge>
                                     ))}
-                                    {filters.courses.length > 1 && (
-                                        <Badge variant="neutral" className="bg-orange-50 text-orange-700 font-abel text-xs hidden sm:inline-flex">
-                                            +{filters.courses.length - 1} more
-                                        </Badge>
-                                    )}
                                 </div>
                             )}
+                            {filters.statuses.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="default" className="bg-red-200 text-red-900 font-abel text-sm sm:text-base">
+                                        Status ({filters.statuses.length})
+                                    </Badge>
+                                    {filters.statuses.map((status, index) => (
+                                        <Badge key={index} variant="neutral" className="bg-red-100 text-red-800 font-abel text-sm sm:text-base">
+                                            {status.length > 25 ? `${status.substring(0, 25)}...` : status}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                            {filters.homeUniversities.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="default" className="bg-teal-200 text-teal-900 font-abel text-sm sm:text-base">
+                                        Universities ({filters.homeUniversities.length})
+                                    </Badge>
+                                    {filters.homeUniversities.map((university, index) => (
+                                        <Badge key={index} variant="neutral" className="bg-teal-100 text-teal-800 font-abel text-sm sm:text-base">
+                                            {university.length > 30 ? `${university.substring(0, 30)}...` : university}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <div className="mt-4 flex justify-end">
+                            <Button
+                                variant="neutral"
+                                onClick={clearAllFilters}
+                                className="px-2 py-1 font-abel text-xs md:text-sm h-8 md:h-9 rounded-md border border-blue-200 bg-white text-blue-900 hover:bg-blue-50 shadow-sm transition-all duration-150"
+                            >
+                                Clear All Filters
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -1352,7 +1482,15 @@ export default function StateCutoffsPage() {
                     <span className="text-muted-foreground">categories</span>
                 </div>
                 <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
-                    <span className="font-medium">{filters.percentileInput ? '-1%' : 'All'}</span>
+                    <span className="font-medium">{filters.statuses.length}</span>
+                    <span className="text-muted-foreground">statuses</span>
+                </div>
+                <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
+                    <span className="font-medium">{filters.homeUniversities.length}</span>
+                    <span className="text-muted-foreground">universities</span>
+                </div>
+                <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
+                    <span className="font-medium">{filters.percentileInput ? '-10%' : 'All'}</span>
                     <span className="text-muted-foreground">range</span>
                 </div>
             </div>
@@ -1525,7 +1663,10 @@ export default function StateCutoffsPage() {
                                         <Button
                                             variant="neutral"
                                             className="hidden md:flex h-8 w-8 p-0"
-                                            onClick={() => handlePageChange(1)}
+                                            onClick={() => {
+                                                console.log('First page button clicked!');
+                                                handlePageChange(1);
+                                            }}
                                             disabled={currentPage === 1 || loading || memoizedTotalItems === 0}
                                         >
                                             <span className="sr-only">Go to first page</span>
@@ -1534,7 +1675,10 @@ export default function StateCutoffsPage() {
                                         <Button
                                             variant="neutral"
                                             className="h-8 w-8 p-0"
-                                            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                                            onClick={() => {
+                                                console.log('Previous button clicked!');
+                                                handlePageChange(Math.max(1, currentPage - 1));
+                                            }}
                                             disabled={currentPage === 1 || loading || memoizedTotalItems === 0}
                                         >
                                             <span className="sr-only">Go to previous page</span>
@@ -1544,6 +1688,7 @@ export default function StateCutoffsPage() {
                                             variant="neutral"
                                             className="h-8 w-8 p-0"
                                             onClick={() => {
+                                                console.log('Next button clicked!');
                                                 const totalPages = Math.ceil(memoizedTotalItems / itemsPerPage);
                                                 handlePageChange(Math.min(totalPages, currentPage + 1));
                                             }}
@@ -1556,6 +1701,7 @@ export default function StateCutoffsPage() {
                                             variant="neutral"
                                             className="hidden md:flex h-8 w-8 p-0"
                                             onClick={() => {
+                                                console.log('Last page button clicked!');
                                                 const totalPages = Math.ceil(memoizedTotalItems / itemsPerPage);
                                                 handlePageChange(totalPages);
                                             }}
@@ -1600,7 +1746,7 @@ export default function StateCutoffsPage() {
                                 <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">1</div>
                                 <div>
                                     <p className="font-semibold text-gray-800">Enter Your Percentile</p>
-                                    <p className="text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -1% range.</p>
+                                    <p className="text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -10% range.</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-2 sm:gap-3">
@@ -1620,7 +1766,7 @@ export default function StateCutoffsPage() {
                         </div>
                         <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
                             <p className="text-xs font-abel text-amber-900">
-                                <span className="font-bold">Pro Tip:</span> The -1% range shows realistic options, helping you find colleges where you have a strong chance of admission.
+                                <span className="font-bold">Pro Tip:</span> The -10% range shows realistic options, helping you find colleges where you have a strong chance of admission.
                             </p>
                         </div>
                     </CardContent>
@@ -1672,66 +1818,58 @@ export default function StateCutoffsPage() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-2">
-                        <Accordion type="single" collapsible className="w-full space-y-2">
-                            <AccordionItem value="item-1" className="border rounded-lg px-2 sm:px-3">
-                                <AccordionTrigger className="font-abel text-xs sm:text-sm font-semibold text-gray-700 hover:no-underline">
+                        <Accordion type="single" collapsible className="w-full space-y-3">
+                            <AccordionItem value="item-1" className="border-none bg-gradient-to-br from-emerald-100/60 to-white shadow-lg rounded-xl overflow-hidden">
+                                <AccordionTrigger className="font-abel text-sm sm:text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
                                     <div className="flex items-center gap-2">
-                                        <Info className="h-3 w-3 sm:h-4 sm:w-4" /> Category Code Format
+                                        <Info className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
+                                        <span>Category Code Format</span>
                                     </div>
                                 </AccordionTrigger>
-                                <AccordionContent className="font-abel text-xs pb-3">
-                                    <div className="space-y-2 p-2 sm:p-3 bg-white rounded-md border">
+                                <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-emerald-100/80 shadow-inner">
+                                    <div className="space-y-2 p-3">
                                         <p><span className="font-bold">G</span> = General, <span className="font-bold">L</span> = Ladies</p>
                                         <p><span className="font-bold">H</span> = Home Uni, <span className="font-bold">O</span> = Other Uni, <span className="font-bold">S</span> = State</p>
                                         <p>Example: <span className="font-mono bg-gray-100 px-1 rounded text-xs">GOPENH</span> is General Open Home University.</p>
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
-                            <AccordionItem value="item-2" className="border rounded-lg px-2 sm:px-3">
-                                <AccordionTrigger className="font-abel text-xs sm:text-sm font-semibold text-gray-700 hover:no-underline">
+                            <AccordionItem value="item-2" className="border-none bg-gradient-to-br from-purple-100/60 to-white shadow-lg rounded-xl overflow-hidden">
+                                <AccordionTrigger className="font-abel text-sm sm:text-base font-semibold text-purple-900 hover:no-underline px-4 py-3 bg-purple-50/80 rounded-t-xl group transition-all duration-200">
                                     <div className="flex items-center gap-2">
-                                        <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4" /> Special Category Codes
+                                        <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 group-data-[state=open]:text-purple-800 transition-colors" />
+                                        <span>Special Category Codes</span>
                                     </div>
                                 </AccordionTrigger>
-                                <AccordionContent className="font-abel text-xs pb-3">
-                                    <div className="space-y-2 p-2 sm:p-3 bg-white rounded-md border">
+                                <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-purple-100/80 shadow-inner">
+                                    <div className="space-y-2 p-3">
                                         <p><span className="font-bold">TFWS:</span> Tuition Fee Waiver Scheme</p>
                                         <p><span className="font-bold">EWS:</span> Economically Weaker Section</p>
                                         <p><span className="font-bold">DEF:</span> Defence Reserved</p>
                                         <p><span className="font-bold">PWD:</span> Persons with Disability</p>
-                                        <p><span className="font-bold">MI:</span> Minority Seats</p>
+                                        <p><span className="font-bold">MI:</span> Minority Institutions</p>
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
-                            <AccordionItem value="item-3" className="border rounded-lg px-2 sm:px-3">
-                                <AccordionTrigger className="font-abel text-xs sm:text-sm font-semibold text-gray-700 hover:no-underline">
+                            <AccordionItem value="item-3" className="border-none bg-gradient-to-br from-emerald-100/60 to-white shadow-lg rounded-xl overflow-hidden">
+                                <AccordionTrigger className="font-abel text-sm sm:text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
                                     <div className="flex items-center gap-2">
-                                        <Video className="h-3 w-3 sm:h-4 sm:w-4" /> Video Guide
+                                        <Info className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
+                                        <span>Video Explanation</span>
                                     </div>
                                 </AccordionTrigger>
-                                <AccordionContent className="pb-3">
-                                    <div className="space-y-3">
-                                        <p className="text-xs font-abel text-gray-600 italic">
-                                            Educational content from an independent creator (not affiliated with our platform)
-                                        </p>
-                                        <div className="w-full" style={{ aspectRatio: '16/9' }}>
-                                            <iframe
-                                                className="w-full h-full rounded-lg border"
-                                                src="https://www.youtube-nocookie.com/embed/1WA_Vh1jaU4?si=-4H9MJYD8tOzjRTs"
-                                                title="YouTube video player"
-                                                frameBorder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                referrerPolicy="strict-origin-when-cross-origin"
-                                                allowFullScreen
-                                                style={{ minHeight: '150px' }}
-                                            ></iframe>
-                                        </div>
-                                    </div>
+                                <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-emerald-100/80 shadow-inner">
+                                    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/1WA_Vh1jaU4?si=bBGUzsa5AoHX6ONh" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* Category Flow Chart */}
+            <div className="mt-8 md:mt-12">
+                <CategoryFlowChart />
             </div>
         </div>
     );

@@ -13,6 +13,8 @@ export async function POST(request: NextRequest) {
         const categories = body.categories || [];
         const seatAllocations = body.seatAllocations || [];
         const courses = body.courses || [];
+        const statuses = body.statuses || [];
+        const homeUniversities = body.homeUniversities || [];
         const percentileInput = body.percentileInput || '';
         const sortBy = body.sortBy || 'last_rank';
         const sortOrder = body.sortOrder || 'desc';
@@ -40,6 +42,8 @@ export async function POST(request: NextRequest) {
                         cutoff_score: '92.6268989',
                         last_rank: '1000',
                         total_admitted: 60,
+                        status: 'Government',
+                        home_university: 'Mumbai University',
                         created: new Date().toISOString(),
                         updated: new Date().toISOString()
                     };
@@ -56,6 +60,8 @@ export async function POST(request: NextRequest) {
                         cutoff_score: '91.6268989',
                         last_rank: '1500',
                         total_admitted: 45,
+                        status: 'Government Autonomous',
+                        home_university: 'Savitribai Phule Pune University',
                         created: new Date().toISOString(),
                         updated: new Date().toISOString()
                     };
@@ -71,6 +77,8 @@ export async function POST(request: NextRequest) {
                     cutoff_score: String((99.5 - (i * 0.02)).toFixed(7)), // More varied precise decimal values
                     last_rank: String(1000 + (i * 50)),
                     total_admitted: 60 + (i % 20),
+                    status: ['Government', 'Government Autonomous', 'Un-Aided', 'University', 'Deemed University Autonomous'][i % 5],
+                    home_university: ['Mumbai University', 'Savitribai Phule Pune University', 'Shivaji University', 'Dr. Babasaheb Ambedkar Marathwada University', 'Rashtrasant Tukadoji Maharaj Nagpur University'][i % 5],
                     created: new Date().toISOString(),
                     updated: new Date().toISOString()
                 };
@@ -92,6 +100,21 @@ export async function POST(request: NextRequest) {
             // Apply seat allocation filter if provided
             if (seatAllocations && seatAllocations.length > 0) {
                 mockData = mockData.filter((item: any) => seatAllocations.includes(item.seat_allocation_section));
+            }
+
+            // Apply status filter if provided
+            if (statuses && statuses.length > 0) {
+                mockData = mockData.filter((item: any) => statuses.includes(item.status));
+            }
+
+            // Apply home university filter if provided
+            if (homeUniversities && homeUniversities.length > 0) {
+                mockData = mockData.filter((item: any) => homeUniversities.includes(item.home_university));
+            }
+
+            // Apply courses filter if provided
+            if (courses && courses.length > 0) {
+                mockData = mockData.filter((item: any) => courses.includes(item.course_name));
             }
 
             // Apply percentile filter if provided
@@ -176,6 +199,16 @@ export async function POST(request: NextRequest) {
             filterParts.push(`(${seatFilter})`);
         }
 
+        if (statuses && Array.isArray(statuses) && statuses.length > 0) {
+            const statusFilter = statuses.map((status: string) => `status = "${status}"`).join(' || ');
+            filterParts.push(`(${statusFilter})`);
+        }
+
+        if (homeUniversities && Array.isArray(homeUniversities) && homeUniversities.length > 0) {
+            const homeUniversityFilter = homeUniversities.map((uni: string) => `home_university = "${uni}"`).join(' || ');
+            filterParts.push(`(${homeUniversityFilter})`);
+        }
+
         // Percentile-based filtering (-1 range only) - filtering cutoff_score directly
         if (percentileInput && !isNaN(parseFloat(percentileInput))) {
             const targetPercentile = parseFloat(percentileInput);
@@ -209,7 +242,7 @@ export async function POST(request: NextRequest) {
         });
 
         try {
-            const result = await pb.collection('2024_mht_cet_round_one_cutoffs').getList(
+            const result = await pb.collection('2024_mht_cet_round_one_cutoffs_duplicate').getList(
                 page,
                 perPage,
                 {
@@ -258,6 +291,8 @@ export async function POST(request: NextRequest) {
                         cutoff_score: '97.989925',
                         last_rank: '500',
                         total_admitted: 60,
+                        status: 'Government',
+                        home_university: 'Mumbai University',
                         created: new Date().toISOString(),
                         updated: new Date().toISOString()
                     };
@@ -274,6 +309,8 @@ export async function POST(request: NextRequest) {
                         cutoff_score: '92.6268989',
                         last_rank: '1000',
                         total_admitted: 60,
+                        status: 'Government Autonomous',
+                        home_university: 'Savitribai Phule Pune University',
                         created: new Date().toISOString(),
                         updated: new Date().toISOString()
                     };
@@ -290,6 +327,8 @@ export async function POST(request: NextRequest) {
                         cutoff_score: '91.6268989',
                         last_rank: '1500',
                         total_admitted: 45,
+                        status: 'Un-Aided',
+                        home_university: 'Shivaji University',
                         created: new Date().toISOString(),
                         updated: new Date().toISOString()
                     };
@@ -305,6 +344,8 @@ export async function POST(request: NextRequest) {
                     cutoff_score: String((99.5 - (i * 0.01)).toFixed(7)), // More realistic percentile values
                     last_rank: String(1000 + (i * 50)),
                     total_admitted: 60 + (i % 20),
+                    status: ['Government', 'Government Autonomous', 'Un-Aided', 'University', 'Deemed University Autonomous'][i % 5],
+                    home_university: ['Mumbai University', 'Savitribai Phule Pune University', 'Shivaji University', 'Dr. Babasaheb Ambedkar Marathwada University', 'Rashtrasant Tukadoji Maharaj Nagpur University'][i % 5],
                     created: new Date().toISOString(),
                     updated: new Date().toISOString()
                 };
@@ -316,6 +357,31 @@ export async function POST(request: NextRequest) {
                     item.college_name.toLowerCase().includes(search.toLowerCase()) ||
                     item.course_name.toLowerCase().includes(search.toLowerCase())
                 );
+            }
+
+            // Apply category filter to mock data if provided
+            if (categories && categories.length > 0) {
+                mockData = mockData.filter((item: any) => categories.includes(item.category));
+            }
+
+            // Apply seat allocation filter to mock data if provided
+            if (seatAllocations && seatAllocations.length > 0) {
+                mockData = mockData.filter((item: any) => seatAllocations.includes(item.seat_allocation_section));
+            }
+
+            // Apply status filter to mock data if provided
+            if (statuses && statuses.length > 0) {
+                mockData = mockData.filter((item: any) => statuses.includes(item.status));
+            }
+
+            // Apply home university filter to mock data if provided
+            if (homeUniversities && homeUniversities.length > 0) {
+                mockData = mockData.filter((item: any) => homeUniversities.includes(item.home_university));
+            }
+
+            // Apply courses filter to mock data if provided
+            if (courses && courses.length > 0) {
+                mockData = mockData.filter((item: any) => courses.includes(item.course_name));
             }
 
             // Apply percentile filter to mock data if provided

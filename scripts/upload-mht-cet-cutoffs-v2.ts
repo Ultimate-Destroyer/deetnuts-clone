@@ -22,7 +22,7 @@ interface CutoffRecord {
 class MHTCETCutoffUploader {
     private pb: PocketBase;
     private csvFilePath: string;
-    private collectionName = '2024_mht_cet_round_one_cutoffs';
+    private collectionName = '2024_mht_cet_round_one_cutoffs_duplicate';
     private authToken: string | null = null;
 
     constructor() {
