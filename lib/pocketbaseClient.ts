@@ -1,5 +1,4 @@
-import PocketBase from 'pocketbase';
-import { ClientResponseError } from 'pocketbase';
+import PocketBase, { ClientResponseError } from 'pocketbase';
 
 /**
  * Global auth cache to persist across API calls
@@ -12,23 +11,24 @@ let globalAuthCache: {
 
 const AUTH_CACHE_DURATION = 50 * 60 * 1000; // 50 minutes
 
+// Added cache for the PocketBase client instance
+let pbClient: PocketBase | null = null;
+
 /**
  * Get PocketBase instance (singleton pattern)
  */
-let pb: PocketBase | null = null;
-
 export function getPocketBase() {
-  if (!pb) {
+  if (!pbClient) {
     const pocketbaseUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL;
 
     if (!pocketbaseUrl) {
       throw new Error('NEXT_PUBLIC_POCKETBASE_URL environment variable is not defined');
     }
 
-    pb = new PocketBase(pocketbaseUrl);
-    pb.autoCancellation(false);
+    pbClient = new PocketBase(pocketbaseUrl);
+    pbClient.autoCancellation(false);
   }
-  return pb;
+  return pbClient;
 }
 
 /**

@@ -311,7 +311,7 @@ export default function StateCutoffsPage() {
     const [loading, setLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage, setItemsPerPage] = useState(25);
     const [isRequestActive, setIsRequestActive] = useState(false);
 
     // Applied filters (what's actually being used for search)
@@ -365,10 +365,10 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             College Name
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
@@ -376,17 +376,17 @@ export default function StateCutoffsPage() {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div className="font-abel font-medium max-w-[250px] truncate cursor-help text-sm">
+                                <div className="font-abel font-medium max-w-[200px] sm:max-w-[300px] truncate cursor-help text-xs sm:text-sm lg:text-base px-2 sm:px-3">
                                     {row.getValue("college_name")}
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p className="max-w-sm font-abel">{row.getValue("college_name")}</p>
+                                <p className="max-w-md font-abel text-sm">{row.getValue("college_name")}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
                 ),
-                size: 250,
+                size: 300,
             },
             {
                 accessorKey: "course_name",
@@ -395,10 +395,10 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             Course Name
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
@@ -406,17 +406,17 @@ export default function StateCutoffsPage() {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div className="font-abel font-medium max-w-[200px] truncate cursor-help text-sm">
+                                <div className="font-abel font-medium max-w-[180px] sm:max-w-[250px] truncate cursor-help text-xs sm:text-sm lg:text-base px-2 sm:px-3">
                                     {row.getValue("course_name")}
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p className="max-w-sm font-abel">{row.getValue("course_name")}</p>
+                                <p className="max-w-md font-abel text-sm">{row.getValue("course_name")}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
                 ),
-                size: 200,
+                size: 250,
             },
             {
                 accessorKey: "category",
@@ -425,19 +425,21 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             Category
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
                 cell: ({ row }) => (
-                    <Badge variant="neutral" className="font-abel text-xs w-fit font-medium">
-                        {row.getValue("category")}
-                    </Badge>
+                    <div className="px-2 sm:px-3">
+                        <Badge variant="neutral" className="font-abel text-xs sm:text-sm w-fit font-medium">
+                            {row.getValue("category")}
+                        </Badge>
+                    </div>
                 ),
-                size: 100,
+                size: 120,
             },
             {
                 accessorKey: "last_rank",
@@ -446,10 +448,10 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             Rank
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
@@ -457,12 +459,12 @@ export default function StateCutoffsPage() {
                     const rank = row.getValue("last_rank") as string;
                     const numRank = parseInt(rank);
                     return (
-                        <div className="text-right font-abel font-medium w-[80px] text-sm">
+                        <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base px-2 sm:px-3">
                             {isNaN(numRank) ? rank : numRank.toLocaleString()}
                         </div>
                     );
                 },
-                size: 80,
+                size: 100,
             },
             {
                 accessorKey: "cutoff_score",
@@ -471,19 +473,19 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             Percentile
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
                 cell: ({ row }) => (
-                    <div className="text-right font-abel font-medium w-[80px] text-sm">
+                    <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base px-2 sm:px-3">
                         {row.getValue("cutoff_score")}
                     </div>
                 ),
-                size: 80,
+                size: 100,
             },
             {
                 accessorKey: "seat_allocation_section",
@@ -492,10 +494,10 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             Seat Allocation
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
@@ -507,18 +509,18 @@ export default function StateCutoffsPage() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="font-abel text-xs max-w-[120px] truncate cursor-help font-medium">
+                                    <div className="font-abel text-xs sm:text-sm max-w-[120px] sm:max-w-[150px] truncate cursor-help font-medium px-2 sm:px-3">
                                         {label}
                                     </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p className="font-abel">{label}</p>
+                                    <p className="font-abel text-sm">{label}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
                     );
                 },
-                size: 120,
+                size: 150,
             },
             {
                 accessorKey: "total_admitted",
@@ -527,10 +529,10 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             Admitted
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
@@ -540,18 +542,18 @@ export default function StateCutoffsPage() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="text-right font-abel font-medium w-[80px] text-sm cursor-help">
+                                    <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base cursor-help px-2 sm:px-3">
                                         {value.toLocaleString()}
                                     </div>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p className="font-abel">Total students admitted: {value}</p>
+                                    <p className="font-abel text-sm">Total students admitted: {value}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
                     );
                 },
-                size: 80,
+                size: 100,
             },
             {
                 accessorKey: "college_code",
@@ -560,10 +562,10 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             College Code
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
@@ -571,17 +573,17 @@ export default function StateCutoffsPage() {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div className="font-abel text-xs w-[90px] font-medium cursor-help">
+                                <div className="font-abel text-xs sm:text-sm w-[90px] sm:w-[110px] font-medium cursor-help px-2 sm:px-3">
                                     {row.getValue("college_code")}
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p className="font-abel">College Code: {row.getValue("college_code")}</p>
+                                <p className="font-abel text-sm">College Code: {row.getValue("college_code")}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
                 ),
-                size: 90,
+                size: 110,
             },
             {
                 accessorKey: "course_code",
@@ -590,10 +592,10 @@ export default function StateCutoffsPage() {
                         <Button
                             variant="link"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 px-2 lg:px-3 font-abel"
+                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
                         >
                             Course Code
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                     )
                 },
@@ -601,17 +603,17 @@ export default function StateCutoffsPage() {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div className="font-abel text-xs w-[90px] font-medium cursor-help">
+                                <div className="font-abel text-xs sm:text-sm w-[90px] sm:w-[110px] font-medium cursor-help px-2 sm:px-3">
                                     {row.getValue("course_code")}
                                 </div>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p className="font-abel">Course Code: {row.getValue("course_code")}</p>
+                                <p className="font-abel text-sm">Course Code: {row.getValue("course_code")}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
                 ),
-                size: 90,
+                size: 110,
             },
         ],
         []
@@ -687,20 +689,19 @@ export default function StateCutoffsPage() {
 
         console.log('Fetching records for page:', currentPage, 'with filters:', debouncedFilters);
 
-        // Only cancel previous request if it's for different filters (not just pagination)
-        const params = new URLSearchParams({
-            page: currentPage.toString(),
-            perPage: itemsPerPage.toString(),
+        const requestBody = {
+            page: currentPage,
+            perPage: itemsPerPage,
             search: debouncedFilters.search,
-            categories: debouncedFilters.categories.join(','),
-            seatAllocations: debouncedFilters.seatAllocations.join(','),
-            courses: debouncedFilters.courses.join(','),
+            categories: debouncedFilters.categories,
+            seatAllocations: debouncedFilters.seatAllocations,
+            courses: debouncedFilters.courses,
             percentileInput: debouncedFilters.percentileInput,
             sortBy: debouncedFilters.sortBy,
-            sortOrder: debouncedFilters.sortOrder
-        });
+            sortOrder: debouncedFilters.sortOrder,
+        };
 
-        const cacheKey = params.toString();
+        const cacheKey = JSON.stringify(requestBody);
 
         // Check if this is the same request type (only different pagination)
         const currentRequestKey = `${debouncedFilters.search}-${debouncedFilters.categories.join(',')}-${debouncedFilters.seatAllocations.join(',')}-${debouncedFilters.courses.join(',')}-${debouncedFilters.percentileInput}`;
@@ -735,13 +736,16 @@ export default function StateCutoffsPage() {
         setLoading(true);
 
         try {
-            console.log(`Making API request ${requestId} with params:`, params.toString());
+            console.log(`Making API POST request ${requestId} with body:`, requestBody);
 
-            const response = await fetch(`/api/mht-cet/state-cutoffs?${params}`, {
+            const response = await fetch(`/api/mht-cet/state-cutoffs`, {
+                method: 'POST',
                 signal: abortControllerRef.current.signal,
                 headers: {
+                    'Content-Type': 'application/json',
                     'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
-                }
+                },
+                body: JSON.stringify(requestBody),
             });
 
             // Check if this is still the latest request
@@ -924,39 +928,45 @@ export default function StateCutoffsPage() {
     }, [memoizedTotalItems, itemsPerPage]);
 
     return (
-        <div className="container mx-auto py-32 px-4 space-y-6 font-abel">
+        <div className="w-full max-w-full md:max-w-7xl lg:max-w-7xl xl:max-w-7xl 2xl:max-w-7xl mx-auto py-4 md:py-8 lg:py-16 xl:py-24 px-3 md:px-4 lg:px-6 space-y-4 md:space-y-6 font-abel">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-4xl font-black tracking-tight text-black font-abel">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 pt-20 lg:pt-6">
+                <div className="flex-1 min-w-0">
+                    <h1 className="text-3xl lg:text-3xl xl:text-4xl font-black tracking-tight text-black font-abel break-words">
                         MHT-CET State Cutoffs 2024
                     </h1>
-                    <p className="text-muted-foreground text-lg font-medium mt-2 font-abel">
+                    <p className="text-muted-foreground text-sm md:text-base lg:text-lg font-medium mt-1 md:mt-2 font-abel">
                         Round 1 cutoffs for engineering colleges
                     </p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="neutral" onClick={fetchRecords} disabled={loading} className="font-abel">
+                <div className="flex gap-2 flex-shrink-0 w-full md:w-auto">
+                    <Button
+                        variant="neutral"
+                        onClick={fetchRecords}
+                        disabled={loading}
+                        className="font-abel text-sm md:text-base px-3 md:px-4 py-2 w-full md:w-auto"
+                    >
                         <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                        Refresh
+                        <span className="hidden lg:inline">Refresh</span>
+                        <span className="inline lg:hidden">↻</span>
                     </Button>
                 </div>
             </div>
 
             {/* Filters */}
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-abel">
-                        <Filter className="h-5 w-5" />
+                <CardHeader className="pb-3 md:pb-4">
+                    <CardTitle className="flex items-center gap-2 font-abel text-lg md:text-xl">
+                        <Filter className="h-4 w-4 md:h-5 md:w-5" />
                         Filters
                         {hasUnsavedChanges && (
-                            <Badge variant="neutral" className="ml-2 font-abel bg-red-100 text-red-800 border-red-300">
+                            <Badge variant="neutral" className="ml-2 font-abel bg-red-100 text-red-800 border-red-300 text-xs md:text-sm">
                                 Changes Pending
                             </Badge>
                         )}
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 md:space-y-6">
                     {/* Search Input */}
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -964,14 +974,14 @@ export default function StateCutoffsPage() {
                             placeholder="Search colleges, courses..."
                             value={pendingFilters.search}
                             onChange={(e) => setPendingFilters(prev => ({ ...prev, search: e.target.value }))}
-                            className="pl-10 font-abel"
+                            className="pl-10 font-abel text-sm md:text-base h-12"
                         />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                         {/* Percentile Input */}
                         <div className="space-y-2">
-                            <Label className="text-sm font-medium flex items-center gap-2 font-abel">
+                            <Label className="text-sm md:text-base font-medium flex items-center gap-2 font-abel">
                                 Target Percentile (-1 range)
                             </Label>
                             <Input
@@ -988,10 +998,10 @@ export default function StateCutoffsPage() {
                                     }
                                 }}
                                 type="text"
-                                className="font-abel"
+                                className="font-abel text-sm md:text-base h-12"
                             />
                             {pendingFilters.percentileInput && (
-                                <p className="text-xs text-muted-foreground font-abel">
+                                <p className="text-xs sm:text-sm text-muted-foreground font-abel">
                                     {(() => {
                                         const target = parseFloat(pendingFilters.percentileInput);
                                         const range = getPrecisePercentileRange(target);
@@ -1002,13 +1012,13 @@ export default function StateCutoffsPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4">
                         {/* Enhanced Category Filter */}
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="neutral" className="justify-between h-10 font-abel">
-                                    <span>Categories</span>
-                                    <div className="flex items-center gap-2">
+                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base">
+                                    <span className="truncate mr-2">Categories</span>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                         {pendingFilters.categories.length > 0 && (
                                             <Badge variant="neutral" className="ml-2 text-xs px-2 py-0 font-abel">
                                                 {pendingFilters.categories.length}
@@ -1018,17 +1028,17 @@ export default function StateCutoffsPage() {
                                     </div>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-96 p-0">
+                            <PopoverContent className="w-80 md:w-96 p-0 max-h-[80vh] overflow-hidden">
                                 <div className="p-4">
                                     <div className="flex justify-between items-center mb-3">
-                                        <h4 className="font-medium font-abel">Select Categories</h4>
+                                        <h4 className="font-medium font-abel text-sm md:text-base">Select Categories</h4>
                                         <Button
                                             variant="link"
                                             size="sm"
                                             onClick={() => {
                                                 setPendingFilters(prev => ({ ...prev, categories: [] }));
                                             }}
-                                            className="font-abel"
+                                            className="font-abel text-xs md:text-sm"
                                         >
                                             Clear All
                                         </Button>
@@ -1070,7 +1080,7 @@ export default function StateCutoffsPage() {
                                                                 checked={pendingFilters.categories.includes(category)}
                                                                 onCheckedChange={() => handleCategoryToggle(category)}
                                                             />
-                                                            <Label htmlFor={category} className="text-xs font-abel cursor-pointer">
+                                                            <Label htmlFor={category} className="text-xs font-abel cursor-pointer leading-tight">
                                                                 {category}
                                                             </Label>
                                                         </div>
@@ -1087,9 +1097,9 @@ export default function StateCutoffsPage() {
                         {/* Enhanced Course Filter */}
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="neutral" className="justify-between h-10 font-abel">
-                                    <span>Courses</span>
-                                    <div className="flex items-center gap-2">
+                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base">
+                                    <span className="truncate mr-2">Courses</span>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                         {pendingFilters.courses.length > 0 && (
                                             <Badge variant="neutral" className="ml-2 text-xs px-2 py-0 font-abel">
                                                 {pendingFilters.courses.length}
@@ -1099,17 +1109,17 @@ export default function StateCutoffsPage() {
                                     </div>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-96 p-0">
+                            <PopoverContent className="w-80 md:w-96 p-0 max-h-[80vh] overflow-hidden">
                                 <div className="p-4">
                                     <div className="flex justify-between items-center mb-3">
-                                        <h4 className="font-medium font-abel">Select Courses</h4>
+                                        <h4 className="font-medium font-abel text-sm md:text-base">Select Courses</h4>
                                         <Button
                                             variant="link"
                                             size="sm"
                                             onClick={() => {
                                                 setPendingFilters(prev => ({ ...prev, courses: [] }));
                                             }}
-                                            className="font-abel"
+                                            className="font-abel text-xs md:text-sm"
                                         >
                                             Clear All
                                         </Button>
@@ -1145,13 +1155,14 @@ export default function StateCutoffsPage() {
                                                 </div>
                                                 <div className="space-y-1">
                                                     {courses.map((course) => (
-                                                        <div key={course} className="flex items-center space-x-2">
+                                                        <div key={course} className="flex items-start space-x-2">
                                                             <Checkbox
                                                                 id={course}
                                                                 checked={pendingFilters.courses.includes(course)}
                                                                 onCheckedChange={() => handleCourseToggle(course)}
+                                                                className="mt-1"
                                                             />
-                                                            <Label htmlFor={course} className="text-xs font-abel cursor-pointer">
+                                                            <Label htmlFor={course} className="text-xs font-abel cursor-pointer leading-tight">
                                                                 {course}
                                                             </Label>
                                                         </div>
@@ -1168,9 +1179,9 @@ export default function StateCutoffsPage() {
                         {/* Seat Allocation Filter */}
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="neutral" className="justify-between h-10 font-abel">
-                                    <span>Seat Allocation</span>
-                                    <div className="flex items-center gap-2">
+                                <Button variant="neutral" className="justify-between h-12 font-abel text-sm md:text-base">
+                                    <span className="truncate mr-2">Seat Allocation</span>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
                                         {pendingFilters.seatAllocations.length > 0 && (
                                             <Badge variant="neutral" className="ml-2 text-xs px-2 py-0 font-abel">
                                                 {pendingFilters.seatAllocations.length}
@@ -1180,65 +1191,71 @@ export default function StateCutoffsPage() {
                                     </div>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-80">
-                                <div className="space-y-3">
-                                    {SEAT_ALLOCATION_OPTIONS.map((option) => (
-                                        <div key={option.value} className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={option.value}
-                                                checked={pendingFilters.seatAllocations.includes(option.value)}
-                                                onCheckedChange={() => handleSeatAllocationToggle(option.value)}
-                                            />
-                                            <Label htmlFor={option.value} className="text-sm font-abel">
-                                                {option.label}
-                                            </Label>
-                                        </div>
-                                    ))}
-                                </div>
+                            <PopoverContent className="w-80 max-h-[80vh] overflow-hidden">
+                                <ScrollArea className="max-h-80">
+                                    <div className="space-y-3 p-4">
+                                        {SEAT_ALLOCATION_OPTIONS.map((option) => (
+                                            <div key={option.value} className="flex items-start space-x-2">
+                                                <Checkbox
+                                                    id={option.value}
+                                                    checked={pendingFilters.seatAllocations.includes(option.value)}
+                                                    onCheckedChange={() => handleSeatAllocationToggle(option.value)}
+                                                    className="mt-1"
+                                                />
+                                                <Label htmlFor={option.value} className="text-sm font-abel leading-tight">
+                                                    {option.label}
+                                                </Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ScrollArea>
                             </PopoverContent>
                         </Popover>
 
                         {/* Search and Clear Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto sm:ml-auto">
+                        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto md:ml-auto col-span-full">
                             <Button
                                 onClick={applyFilters}
                                 disabled={!pendingFilters.percentileInput || !hasUnsavedChanges || isSearching}
-                                className="px-4 sm:px-6 py-2 font-abel text-sm sm:text-base w-full sm:w-auto"
+                                className="px-6 py-2 font-abel text-sm md:text-base w-full md:w-auto h-12"
                             >
                                 {isSearching || loading ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Searching...
+                                        <span className="hidden md:inline">Searching...</span>
+                                        <span className="md:hidden">...</span>
                                     </>
                                 ) : (
                                     <>
                                         <Search className="mr-2 h-4 w-4" />
-                                        Search Cutoffs
+                                        <span className="hidden md:inline">Search Cutoffs</span>
+                                        <span className="md:hidden">Search</span>
                                     </>
                                 )}
                             </Button>
                             <Button
                                 variant="neutral"
                                 onClick={clearAllFilters}
-                                className="px-4 py-2 font-abel text-sm sm:text-base w-full sm:w-auto"
+                                className="px-4 py-2 font-abel text-sm md:text-base w-full md:w-auto h-12"
                             >
-                                Clear All
+                                <span className="hidden md:inline">Clear All</span>
+                                <span className="md:hidden">Clear</span>
                             </Button>
                         </div>
                     </div>
 
                     {/* Changes Indicator */}
                     {!pendingFilters.percentileInput ? (
-                        <div className="flex items-center justify-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                            <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></div>
-                            <span className="text-sm font-medium text-blue-800 font-abel">
+                        <div className="flex items-center justify-center gap-2 p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse flex-shrink-0"></div>
+                            <span className="text-xs md:text-sm font-medium text-blue-800 font-abel text-center">
                                 Please enter a target percentile to search for cutoffs.
                             </span>
                         </div>
                     ) : hasUnsavedChanges ? (
-                        <div className="flex items-center justify-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                            <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse"></div>
-                            <span className="text-sm font-medium text-amber-800 font-abel">
+                        <div className="flex items-center justify-center gap-2 p-3 md:p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                            <div className="h-2 w-2 bg-amber-500 rounded-full animate-pulse flex-shrink-0"></div>
+                            <span className="text-xs md:text-sm font-medium text-amber-800 font-abel text-center">
                                 You have unsaved filter changes. Click &quot;Search Cutoffs&quot; to apply them.
                             </span>
                         </div>
@@ -1249,68 +1266,68 @@ export default function StateCutoffsPage() {
             {/* Active Filters Display */}
             {(filters.percentileInput || filters.categories.length > 0 || filters.seatAllocations.length > 0 || filters.courses.length > 0) && (
                 <Card className="bg-blue-50/50 border-blue-200">
-                    <CardContent className="p-4">
+                    <CardContent className="p-3 sm:p-4">
                         <div className="flex items-center gap-2 mb-3">
-                            <Filter className="h-4 w-4 text-blue-600" />
-                            <h3 className="text-sm font-semibold text-blue-900 font-abel">Active Filters</h3>
+                            <Filter className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                            <h3 className="text-sm sm:text-base font-semibold text-blue-900 font-abel">Active Filters</h3>
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {filters.percentileInput && (
-                                <Badge variant="default" className="bg-blue-100 text-blue-800 font-abel">
-                                    Target Percentile: {filters.percentileInput}%
+                                <Badge variant="default" className="bg-blue-100 text-blue-800 font-abel text-xs sm:text-sm">
+                                    Target: {filters.percentileInput}%
                                 </Badge>
                             )}
                             {filters.categories.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
-                                    <Badge variant="default" className="bg-green-100 text-green-800 font-abel">
-                                        Categories ({filters.categories.length}):
+                                    <Badge variant="default" className="bg-green-100 text-green-800 font-abel text-xs sm:text-sm">
+                                        Categories ({filters.categories.length})
                                     </Badge>
-                                    {filters.categories.slice(0, 3).map((category, index) => (
-                                        <Badge key={index} variant="neutral" className="bg-green-50 text-green-700 font-abel text-xs">
+                                    {filters.categories.slice(0, 2).map((category, index) => (
+                                        <Badge key={index} variant="neutral" className="bg-green-50 text-green-700 font-abel text-xs hidden sm:inline-flex">
                                             {category}
                                         </Badge>
                                     ))}
-                                    {filters.categories.length > 3 && (
-                                        <Badge variant="neutral" className="bg-green-50 text-green-700 font-abel text-xs">
-                                            +{filters.categories.length - 3} more
+                                    {filters.categories.length > 2 && (
+                                        <Badge variant="neutral" className="bg-green-50 text-green-700 font-abel text-xs hidden sm:inline-flex">
+                                            +{filters.categories.length - 2} more
                                         </Badge>
                                     )}
                                 </div>
                             )}
                             {filters.seatAllocations.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
-                                    <Badge variant="default" className="bg-purple-100 text-purple-800 font-abel">
-                                        Seat Allocations ({filters.seatAllocations.length}):
+                                    <Badge variant="default" className="bg-purple-100 text-purple-800 font-abel text-xs sm:text-sm">
+                                        Seats ({filters.seatAllocations.length})
                                     </Badge>
-                                    {filters.seatAllocations.slice(0, 2).map((allocation, index) => {
+                                    {filters.seatAllocations.slice(0, 1).map((allocation, index) => {
                                         const option = SEAT_ALLOCATION_OPTIONS.find(s => s.value === allocation);
                                         const label = option?.label || allocation;
                                         return (
-                                            <Badge key={index} variant="neutral" className="bg-purple-50 text-purple-700 font-abel text-xs">
+                                            <Badge key={index} variant="neutral" className="bg-purple-50 text-purple-700 font-abel text-xs hidden sm:inline-flex">
                                                 {label}
                                             </Badge>
                                         );
                                     })}
-                                    {filters.seatAllocations.length > 2 && (
-                                        <Badge variant="neutral" className="bg-purple-50 text-purple-700 font-abel text-xs">
-                                            +{filters.seatAllocations.length - 2} more
+                                    {filters.seatAllocations.length > 1 && (
+                                        <Badge variant="neutral" className="bg-purple-50 text-purple-700 font-abel text-xs hidden sm:inline-flex">
+                                            +{filters.seatAllocations.length - 1} more
                                         </Badge>
                                     )}
                                 </div>
                             )}
                             {filters.courses.length > 0 && (
                                 <div className="flex flex-wrap gap-1">
-                                    <Badge variant="default" className="bg-orange-100 text-orange-800 font-abel">
-                                        Courses ({filters.courses.length}):
+                                    <Badge variant="default" className="bg-orange-100 text-orange-800 font-abel text-xs sm:text-sm">
+                                        Courses ({filters.courses.length})
                                     </Badge>
-                                    {filters.courses.slice(0, 2).map((course, index) => (
-                                        <Badge key={index} variant="neutral" className="bg-orange-50 text-orange-700 font-abel text-xs">
-                                            {course.length > 30 ? `${course.substring(0, 30)}...` : course}
+                                    {filters.courses.slice(0, 1).map((course, index) => (
+                                        <Badge key={index} variant="neutral" className="bg-orange-50 text-orange-700 font-abel text-xs hidden sm:inline-flex">
+                                            {course.length > 20 ? `${course.substring(0, 20)}...` : course}
                                         </Badge>
                                     ))}
-                                    {filters.courses.length > 2 && (
-                                        <Badge variant="neutral" className="bg-orange-50 text-orange-700 font-abel text-xs">
-                                            +{filters.courses.length - 2} more
+                                    {filters.courses.length > 1 && (
+                                        <Badge variant="neutral" className="bg-orange-50 text-orange-700 font-abel text-xs hidden sm:inline-flex">
+                                            +{filters.courses.length - 1} more
                                         </Badge>
                                     )}
                                 </div>
@@ -1321,32 +1338,32 @@ export default function StateCutoffsPage() {
             )}
 
             {/* Compact Results Summary */}
-            <div className="flex flex-wrap gap-2 sm:gap-3 text-sm font-abel">
-                <div className="flex items-center gap-2 bg-muted/50 px-2 sm:px-3 py-2 rounded-md">
+            <div className="flex flex-wrap gap-2 text-xs md:text-sm font-abel">
+                <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
                     <span className="font-medium">{memoizedTotalItems.toLocaleString()}</span>
                     <span className="text-muted-foreground">total</span>
                 </div>
-                <div className="flex items-center gap-2 bg-muted/50 px-2 sm:px-3 py-2 rounded-md">
+                <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
                     <span className="font-medium">{records.length}</span>
                     <span className="text-muted-foreground">showing</span>
                 </div>
-                <div className="flex items-center gap-2 bg-muted/50 px-2 sm:px-3 py-2 rounded-md">
+                <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
                     <span className="font-medium">{filters.categories.length}</span>
                     <span className="text-muted-foreground">categories</span>
                 </div>
-                <div className="flex items-center gap-2 bg-muted/50 px-2 sm:px-3 py-2 rounded-md">
+                <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
                     <span className="font-medium">{filters.percentileInput ? '-1%' : 'All'}</span>
-                    <span className="text-muted-foreground">percentile range</span>
+                    <span className="text-muted-foreground">range</span>
                 </div>
             </div>
 
             {/* Pagination Controls */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <p className="text-sm text-muted-foreground font-abel">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4">
+                <p className="text-xs md:text-sm text-muted-foreground font-abel">
                     Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, memoizedTotalItems)} of {memoizedTotalItems.toLocaleString()} results
                 </p>
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-abel">Rows per page:</span>
+                <div className="flex items-center gap-2 text-xs md:text-sm">
+                    <span className="font-abel">Rows per page:</span>
                     <Select
                         value={itemsPerPage.toString()}
                         onValueChange={(value) => {
@@ -1354,7 +1371,7 @@ export default function StateCutoffsPage() {
                             setCurrentPage(1);
                         }}
                     >
-                        <SelectTrigger className="w-20 font-abel">
+                        <SelectTrigger className="w-16 md:w-20 font-abel h-8 md:h-10">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1372,10 +1389,10 @@ export default function StateCutoffsPage() {
             <Card>
                 <CardContent className="p-0">
                     {!filters.percentileInput ? (
-                        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                        <div className="flex flex-col items-center justify-center py-12 md:py-16 space-y-4 px-4">
                             <div className="text-center space-y-2">
-                                <h3 className="text-lg font-medium font-abel">Enter Target Percentile</h3>
-                                <p className="text-sm text-muted-foreground font-abel">
+                                <h3 className="text-base md:text-lg font-medium font-abel">Enter Target Percentile</h3>
+                                <p className="text-xs md:text-sm text-muted-foreground font-abel max-w-md">
                                     Please enter a target percentile above to search for MHT-CET cutoffs
                                 </p>
                                 <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground font-abel">
@@ -1384,14 +1401,14 @@ export default function StateCutoffsPage() {
                             </div>
                         </div>
                     ) : loading ? (
-                        <div className="flex flex-col items-center justify-center py-16 space-y-4">
+                        <div className="flex flex-col items-center justify-center py-12 md:py-16 space-y-4 px-4">
                             <div className="relative">
-                                <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
-                                <div className="absolute inset-0 h-12 w-12 rounded-full border-2 border-blue-100"></div>
+                                <Loader2 className="h-8 w-8 md:h-12 md:w-12 animate-spin text-blue-500" />
+                                <div className="absolute inset-0 h-8 w-8 md:h-12 md:w-12 rounded-full border-2 border-blue-100"></div>
                             </div>
                             <div className="text-center space-y-2">
-                                <h3 className="text-lg font-medium font-abel">Loading Cutoff Data</h3>
-                                <p className="text-sm text-muted-foreground font-abel">
+                                <h3 className="text-base md:text-lg font-medium font-abel">Loading Cutoff Data</h3>
+                                <p className="text-xs md:text-sm text-muted-foreground font-abel max-w-md">
                                     Fetching the latest MHT-CET state cutoffs...
                                 </p>
                                 <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground font-abel">
@@ -1412,12 +1429,12 @@ export default function StateCutoffsPage() {
                                     <Table>
                                         <TableHeader>
                                             {table.getHeaderGroups().map((headerGroup) => (
-                                                <TableRow key={headerGroup.id} className="h-12 bg-muted/30">
+                                                <TableRow key={headerGroup.id} className="h-10 md:h-12 bg-muted/30">
                                                     {headerGroup.headers.map((header) => {
                                                         return (
                                                             <TableHead
                                                                 key={header.id}
-                                                                className="h-12 font-semibold whitespace-nowrap"
+                                                                className="h-10 md:h-12 font-semibold whitespace-nowrap text-xs md:text-sm px-2 md:px-4"
                                                                 style={{ width: header.column.columnDef.size }}
                                                             >
                                                                 {header.isPlaceholder
@@ -1438,18 +1455,20 @@ export default function StateCutoffsPage() {
                                                     <TableRow
                                                         key={row.id}
                                                         data-state={row.getIsSelected() && "selected"}
-                                                        className="h-14 hover:bg-muted/50 transition-colors duration-150"
+                                                        className="h-12 md:h-14 hover:bg-muted/50 transition-colors duration-150"
                                                     >
                                                         {row.getVisibleCells().map((cell) => (
                                                             <TableCell
                                                                 key={cell.id}
-                                                                className="py-2 h-14 whitespace-nowrap"
+                                                                className="py-2 h-12 md:h-14 text-xs md:text-sm px-2 md:px-4"
                                                                 style={{ width: cell.column.columnDef.size }}
                                                             >
-                                                                {flexRender(
-                                                                    cell.column.columnDef.cell,
-                                                                    cell.getContext()
-                                                                )}
+                                                                <div className="truncate">
+                                                                    {flexRender(
+                                                                        cell.column.columnDef.cell,
+                                                                        cell.getContext()
+                                                                    )}
+                                                                </div>
                                                             </TableCell>
                                                         ))}
                                                     </TableRow>
@@ -1458,11 +1477,11 @@ export default function StateCutoffsPage() {
                                                 <TableRow>
                                                     <TableCell
                                                         colSpan={columns.length}
-                                                        className="h-24 text-center"
+                                                        className="h-20 md:h-24 text-center"
                                                     >
                                                         <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                                            <Search className="h-8 w-8" />
-                                                            <span className="font-abel">No cutoff data found matching your criteria</span>
+                                                            <Search className="h-6 w-6 md:h-8 md:w-8" />
+                                                            <span className="font-abel text-sm md:text-base">No cutoff data found matching your criteria</span>
                                                             <span className="text-xs font-abel">Try adjusting your filters</span>
                                                         </div>
                                                     </TableCell>
@@ -1474,9 +1493,9 @@ export default function StateCutoffsPage() {
                             </div>
 
                             {/* Enhanced Pagination */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-2 gap-4">
+                            <div className="flex flex-col md:flex-row items-center justify-between px-2 md:px-4 py-2 md:py-3 gap-3 md:gap-4">
                                 <div className="flex items-center space-x-2">
-                                    <p className="text-sm font-medium font-abel">Rows per page</p>
+                                    <p className="text-xs md:text-sm font-medium font-abel">Rows per page</p>
                                     <Select
                                         value={`${itemsPerPage}`}
                                         onValueChange={(value) => {
@@ -1485,7 +1504,7 @@ export default function StateCutoffsPage() {
                                             setCurrentPage(1); // Reset to first page when changing items per page
                                         }}
                                     >
-                                        <SelectTrigger className="h-8 w-[70px] font-abel">
+                                        <SelectTrigger className="h-8 w-[60px] md:w-[70px] font-abel">
                                             <SelectValue placeholder={itemsPerPage} />
                                         </SelectTrigger>
                                         <SelectContent side="top">
@@ -1498,13 +1517,14 @@ export default function StateCutoffsPage() {
                                     </Select>
                                 </div>
 
-                                <div className="flex items-center space-x-2 sm:space-x-6 lg:space-x-8">                                <div className="flex w-[100px] items-center justify-center text-sm font-medium font-abel">
-                                    Page {currentPage} of {Math.ceil(memoizedTotalItems / itemsPerPage)}
-                                </div>
-                                    <div className="flex items-center space-x-1 sm:space-x-2">
+                                <div className="flex items-center space-x-2 md:space-x-6 lg:space-x-8">
+                                    <div className="flex w-[80px] md:w-[100px] items-center justify-center text-xs md:text-sm font-medium font-abel">
+                                        Page {currentPage} of {Math.ceil(memoizedTotalItems / itemsPerPage)}
+                                    </div>
+                                    <div className="flex items-center space-x-1">
                                         <Button
                                             variant="neutral"
-                                            className="hidden sm:flex h-8 w-8 p-0"
+                                            className="hidden md:flex h-8 w-8 p-0"
                                             onClick={() => handlePageChange(1)}
                                             disabled={currentPage === 1 || loading || memoizedTotalItems === 0}
                                         >
@@ -1534,7 +1554,7 @@ export default function StateCutoffsPage() {
                                         </Button>
                                         <Button
                                             variant="neutral"
-                                            className="hidden sm:flex h-8 w-8 p-0"
+                                            className="hidden md:flex h-8 w-8 p-0"
                                             onClick={() => {
                                                 const totalPages = Math.ceil(memoizedTotalItems / itemsPerPage);
                                                 handlePageChange(totalPages);
@@ -1549,11 +1569,11 @@ export default function StateCutoffsPage() {
                             </div>
 
                             {/* Table Info */}
-                            <div className="flex flex-col sm:flex-row items-center justify-between px-4 pb-4 gap-2">
-                                <div className="flex-1 text-sm text-muted-foreground font-abel text-center sm:text-left">
+                            <div className="flex flex-col md:flex-row items-center justify-between px-2 md:px-4 pb-3 md:pb-4 gap-2">
+                                <div className="flex-1 text-xs md:text-sm text-muted-foreground font-abel text-center md:text-left">
                                     Showing {table.getRowModel().rows.length} of {memoizedTotalItems.toLocaleString()} results
                                 </div>
-                                <div className="text-sm text-muted-foreground font-abel">
+                                <div className="text-xs md:text-sm text-muted-foreground font-abel">
                                     {table.getFilteredRowModel().rows.length} row(s) displayed.
                                 </div>
                             </div>
@@ -1563,42 +1583,42 @@ export default function StateCutoffsPage() {
             </Card>
 
             {/* Informational Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
                 {/* How to Use This Tool */}
                 <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-blue-900">
-                            <div className="h-10 w-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                                <Lightbulb className="h-5 w-5 text-blue-600" />
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-abel text-blue-900">
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                             </div>
                             How to Use This Tool
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 pt-2">
-                        <div className="space-y-3 text-sm font-abel">
-                            <div className="flex items-start gap-3">
-                                <div className="flex-shrink-0 mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">1</div>
+                    <CardContent className="space-y-3 sm:space-y-4 pt-2">
+                        <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm font-abel">
+                            <div className="flex items-start gap-2 sm:gap-3">
+                                <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">1</div>
                                 <div>
                                     <p className="font-semibold text-gray-800">Enter Your Percentile</p>
                                     <p className="text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -1% range.</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-3">
-                                <div className="flex-shrink-0 mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">2</div>
+                            <div className="flex items-start gap-2 sm:gap-3">
+                                <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">2</div>
                                 <div>
                                     <p className="font-semibold text-gray-800">Filter Your Preferences</p>
                                     <p className="text-gray-600 text-xs">Select categories, courses, and seat types to narrow down results.</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-3">
-                                <div className="flex-shrink-0 mt-1 h-5 w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">3</div>
+                            <div className="flex items-start gap-2 sm:gap-3">
+                                <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">3</div>
                                 <div>
                                     <p className="font-semibold text-gray-800">Analyze & Strategize</p>
                                     <p className="text-gray-600 text-xs">Results are sorted by highest cutoff. Use this to plan your CAP round choices.</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4 p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+                        <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
                             <p className="text-xs font-abel text-amber-900">
                                 <span className="font-bold">Pro Tip:</span> The -1% range shows realistic options, helping you find colleges where you have a strong chance of admission.
                             </p>
@@ -1609,30 +1629,30 @@ export default function StateCutoffsPage() {
                 {/* Seat Allocation Types */}
                 <Card className="bg-gradient-to-br from-purple-50 to-white border-purple-100 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-purple-900">
-                            <div className="h-10 w-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                                <MapPin className="h-5 w-5 text-purple-600" />
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-abel text-purple-900">
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                             </div>
                             Seat Allocation Types
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3 pt-2 text-sm font-abel">
-                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200">
-                            <ShieldCheck className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <CardContent className="space-y-2 sm:space-y-3 pt-2 text-xs sm:text-sm font-abel">
+                        <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg bg-white border border-gray-200">
+                            <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
                             <div>
                                 <p className="font-semibold text-gray-800">State Level</p>
                                 <p className="text-xs text-gray-600">Open to all Maharashtra candidates.</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200">
-                            <Building className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                        <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg bg-white border border-gray-200">
+                            <Building className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
                             <div>
                                 <p className="font-semibold text-gray-800">Home University</p>
                                 <p className="text-xs text-gray-600">For students within the same university region.</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200">
-                            <Users className="h-5 w-5 text-orange-600 flex-shrink-0" />
+                        <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg bg-white border border-gray-200">
+                            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
                             <div>
                                 <p className="font-semibold text-gray-800">Other University</p>
                                 <p className="text-xs text-gray-600">For students from different university regions.</p>
@@ -1642,39 +1662,39 @@ export default function StateCutoffsPage() {
                 </Card>
 
                 {/* Category and Code Legends */}
-                <Card className="bg-gradient-to-br from-emerald-50 to-white border-emerald-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <Card className="bg-gradient-to-br from-emerald-50 to-white border-emerald-100 shadow-sm hover:shadow-md transition-shadow duration-300 md:col-span-2 xl:col-span-1">
                     <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-emerald-900">
-                            <div className="h-10 w-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                                <BookUser className="h-5 w-5 text-emerald-600" />
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-abel text-emerald-900">
+                            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <BookUser className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
                             </div>
                             Category & Code Legends
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-2">
                         <Accordion type="single" collapsible className="w-full space-y-2">
-                            <AccordionItem value="item-1" className="border rounded-lg px-3">
-                                <AccordionTrigger className="font-abel text-sm font-semibold text-gray-700 hover:no-underline">
+                            <AccordionItem value="item-1" className="border rounded-lg px-2 sm:px-3">
+                                <AccordionTrigger className="font-abel text-xs sm:text-sm font-semibold text-gray-700 hover:no-underline">
                                     <div className="flex items-center gap-2">
-                                        <Info className="h-4 w-4" /> Category Code Format
+                                        <Info className="h-3 w-3 sm:h-4 sm:w-4" /> Category Code Format
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="font-abel text-xs pb-3">
-                                    <div className="space-y-2 p-3 bg-white rounded-md border">
+                                    <div className="space-y-2 p-2 sm:p-3 bg-white rounded-md border">
                                         <p><span className="font-bold">G</span> = General, <span className="font-bold">L</span> = Ladies</p>
                                         <p><span className="font-bold">H</span> = Home Uni, <span className="font-bold">O</span> = Other Uni, <span className="font-bold">S</span> = State</p>
-                                        <p>Example: <span className="font-mono bg-gray-100 px-1 rounded">GOPENH</span> is General Open Home University.</p>
+                                        <p>Example: <span className="font-mono bg-gray-100 px-1 rounded text-xs">GOPENH</span> is General Open Home University.</p>
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
-                            <AccordionItem value="item-2" className="border rounded-lg px-3">
-                                <AccordionTrigger className="font-abel text-sm font-semibold text-gray-700 hover:no-underline">
+                            <AccordionItem value="item-2" className="border rounded-lg px-2 sm:px-3">
+                                <AccordionTrigger className="font-abel text-xs sm:text-sm font-semibold text-gray-700 hover:no-underline">
                                     <div className="flex items-center gap-2">
-                                        <GraduationCap className="h-4 w-4" /> Special Category Codes
+                                        <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4" /> Special Category Codes
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="font-abel text-xs pb-3">
-                                    <div className="space-y-2 p-3 bg-white rounded-md border">
+                                    <div className="space-y-2 p-2 sm:p-3 bg-white rounded-md border">
                                         <p><span className="font-bold">TFWS:</span> Tuition Fee Waiver Scheme</p>
                                         <p><span className="font-bold">EWS:</span> Economically Weaker Section</p>
                                         <p><span className="font-bold">DEF:</span> Defence Reserved</p>
@@ -1683,10 +1703,10 @@ export default function StateCutoffsPage() {
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>
-                            <AccordionItem value="item-3" className="border rounded-lg px-3">
-                                <AccordionTrigger className="font-abel text-sm font-semibold text-gray-700 hover:no-underline">
+                            <AccordionItem value="item-3" className="border rounded-lg px-2 sm:px-3">
+                                <AccordionTrigger className="font-abel text-xs sm:text-sm font-semibold text-gray-700 hover:no-underline">
                                     <div className="flex items-center gap-2">
-                                        <Video className="h-4 w-4" /> Video Guide
+                                        <Video className="h-3 w-3 sm:h-4 sm:w-4" /> Video Guide
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="pb-3">
@@ -1703,7 +1723,7 @@ export default function StateCutoffsPage() {
                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                                 referrerPolicy="strict-origin-when-cross-origin"
                                                 allowFullScreen
-                                                style={{ minHeight: '200px' }}
+                                                style={{ minHeight: '150px' }}
                                             ></iframe>
                                         </div>
                                     </div>

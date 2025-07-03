@@ -125,7 +125,7 @@ export default function Footer() {
                   </a>
                 </p>
                 <p className="mt-2 text-sm text-gray-500">
-                  Meow 👋! I&apos;m Kartik, the creator. You can follow me on <a target="_blank" href="https://www.reddit.com/user/kewkartik/">Reddit</a> or <a target="_blank" href="https://x.com/KewKartik">Twitter</a>!
+                  Meow 👋! I&apos;m Kartik, the creator. You can follow me on <a target="_blank" href="https://www.reddit.com/user/kewkartik/">Reddit</a> or <a target="_blank" href="https://x.com/kewonit">Twitter</a>!
                 </p>
               </div>
               <div className="mt-8 md:mt-0">
