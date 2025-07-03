@@ -20,6 +20,7 @@ const config = {
     },
     extend: {
       screens: {
+        'xs': '480px',
         m1500: { raw: '(max-width: 1500px)' },
         m1300: { raw: '(max-width: 1300px)' },
         m1100: { raw: '(max-width: 1100px)' },

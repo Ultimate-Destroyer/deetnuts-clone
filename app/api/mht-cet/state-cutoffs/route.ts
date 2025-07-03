@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPocketBase, ensureAuthenticatedServer } from '@/lib/pocketbaseClient';
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
     try {
-        console.log('API Route called with URL:', request.url);
+        const body = await request.json();
+        console.log('API Route called with body:', body);
 
-        const { searchParams } = new URL(request.url);
-        const page = parseInt(searchParams.get('page') || '1');
-        const perPage = parseInt(searchParams.get('perPage') || '50');
-        const search = searchParams.get('search') || '';
-        const categories = searchParams.get('categories') || '';
-        const seatAllocations = searchParams.get('seatAllocations') || '';
-        const courses = searchParams.get('courses') || '';
-        const percentileInput = searchParams.get('percentileInput') || '';
-        const sortBy = searchParams.get('sortBy') || 'last_rank';
-        const sortOrder = searchParams.get('sortOrder') || 'desc';
+
+        const page = parseInt(body.page || '1');
+        const perPage = parseInt(body.perPage || '50');
+        const search = body.search || '';
+        const categories = body.categories || [];
+        const seatAllocations = body.seatAllocations || [];
+        const courses = body.courses || [];
+        const percentileInput = body.percentileInput || '';
+        const sortBy = body.sortBy || 'last_rank';
+        const sortOrder = body.sortOrder || 'desc';
 
         const pb = getPocketBase();
 
@@ -84,19 +85,13 @@ export async function GET(request: NextRequest) {
             }
 
             // Apply category filter if provided
-            if (categories) {
-                const categoryList = categories.split(',').filter(c => c.trim());
-                if (categoryList.length > 0) {
-                    mockData = mockData.filter(item => categoryList.includes(item.category));
-                }
+            if (categories && categories.length > 0) {
+                mockData = mockData.filter((item: any) => categories.includes(item.category));
             }
 
             // Apply seat allocation filter if provided
-            if (seatAllocations) {
-                const seatList = seatAllocations.split(',').filter(s => s.trim());
-                if (seatList.length > 0) {
-                    mockData = mockData.filter(item => seatList.includes(item.seat_allocation_section));
-                }
+            if (seatAllocations && seatAllocations.length > 0) {
+                mockData = mockData.filter((item: any) => seatAllocations.includes(item.seat_allocation_section));
             }
 
             // Apply percentile filter if provided
@@ -105,23 +100,23 @@ export async function GET(request: NextRequest) {
                 const minPercentile = Math.max(0, Math.round((targetPercentile - 1) * 10000000000) / 10000000000);
                 const maxPercentile = Math.round(targetPercentile * 10000000000) / 10000000000;
 
-                mockData = mockData.filter(item => {
+                mockData = mockData.filter((item: any) => {
                     const score = parseFloat(item.cutoff_score);
                     return score >= minPercentile && score <= maxPercentile;
                 });
 
                 // Sort by cutoff_score descending for percentile searches
-                mockData.sort((a, b) => parseFloat(b.cutoff_score) - parseFloat(a.cutoff_score));
+                mockData.sort((a: any, b: any) => parseFloat(b.cutoff_score) - parseFloat(a.cutoff_score));
             } else {
                 // Apply other sorting when no percentile filter
                 if (sortBy === 'cutoff_score') {
-                    mockData.sort((a, b) => {
+                    mockData.sort((a: any, b: any) => {
                         const aScore = parseFloat(a.cutoff_score);
                         const bScore = parseFloat(b.cutoff_score);
                         return sortOrder === 'desc' ? bScore - aScore : aScore - bScore;
                     });
                 } else if (sortBy === 'last_rank') {
-                    mockData.sort((a, b) => {
+                    mockData.sort((a: any, b: any) => {
                         const aRank = parseInt(a.last_rank);
                         const bRank = parseInt(b.last_rank);
                         return sortOrder === 'desc' ? bRank - aRank : aRank - bRank;
@@ -166,28 +161,19 @@ export async function GET(request: NextRequest) {
             filterParts.push(`(college_name ~ "${search}" || course_name ~ "${search}")`);
         }
 
-        if (categories) {
-            const categoryList = categories.split(',').filter(c => c.trim());
-            if (categoryList.length > 0) {
-                const categoryFilter = categoryList.map(cat => `category = "${cat}"`).join(' || ');
-                filterParts.push(`(${categoryFilter})`);
-            }
+        if (categories && Array.isArray(categories) && categories.length > 0) {
+            const categoryFilter = categories.map((cat: string) => `category = "${cat}"`).join(' || ');
+            filterParts.push(`(${categoryFilter})`);
         }
 
-        if (courses) {
-            const courseList = courses.split(',').filter(c => c.trim());
-            if (courseList.length > 0) {
-                const courseFilter = courseList.map(course => `course_name = "${course}"`).join(' || ');
-                filterParts.push(`(${courseFilter})`);
-            }
+        if (courses && Array.isArray(courses) && courses.length > 0) {
+            const courseFilter = courses.map((course: string) => `course_name = "${course}"`).join(' || ');
+            filterParts.push(`(${courseFilter})`);
         }
 
-        if (seatAllocations) {
-            const seatList = seatAllocations.split(',').filter(s => s.trim());
-            if (seatList.length > 0) {
-                const seatFilter = seatList.map(seat => `seat_allocation_section = "${seat}"`).join(' || ');
-                filterParts.push(`(${seatFilter})`);
-            }
+        if (seatAllocations && Array.isArray(seatAllocations) && seatAllocations.length > 0) {
+            const seatFilter = seatAllocations.map((seat: string) => `seat_allocation_section = "${seat}"`).join(' || ');
+            filterParts.push(`(${seatFilter})`);
         }
 
         // Percentile-based filtering (-1 range only) - filtering cutoff_score directly
@@ -326,7 +312,7 @@ export async function GET(request: NextRequest) {
 
             // Apply search filter to mock data if provided
             if (search) {
-                mockData = mockData.filter(item =>
+                mockData = mockData.filter((item: any) =>
                     item.college_name.toLowerCase().includes(search.toLowerCase()) ||
                     item.course_name.toLowerCase().includes(search.toLowerCase())
                 );
@@ -339,23 +325,23 @@ export async function GET(request: NextRequest) {
                 const minPercentile = Math.max(0, Math.round((targetPercentile - 1) * 10000000000) / 10000000000);
                 const maxPercentile = Math.round(targetPercentile * 10000000000) / 10000000000;
 
-                mockData = mockData.filter(item => {
+                mockData = mockData.filter((item: any) => {
                     const score = parseFloat(item.cutoff_score);
                     return score >= minPercentile && score <= maxPercentile;
                 });
 
                 // Sort by cutoff_score descending for percentile searches
-                mockData.sort((a, b) => parseFloat(b.cutoff_score) - parseFloat(a.cutoff_score));
+                mockData.sort((a: any, b: any) => parseFloat(b.cutoff_score) - parseFloat(a.cutoff_score));
             } else {
                 // Apply other sorting when no percentile filter
                 if (sortBy === 'cutoff_score') {
-                    mockData.sort((a, b) => {
+                    mockData.sort((a: any, b: any) => {
                         const aScore = parseFloat(a.cutoff_score);
                         const bScore = parseFloat(b.cutoff_score);
                         return sortOrder === 'desc' ? bScore - aScore : aScore - bScore;
                     });
                 } else if (sortBy === 'last_rank') {
-                    mockData.sort((a, b) => {
+                    mockData.sort((a: any, b: any) => {
                         const aRank = parseInt(a.last_rank);
                         const bRank = parseInt(b.last_rank);
                         return sortOrder === 'desc' ? bRank - aRank : aRank - bRank;
