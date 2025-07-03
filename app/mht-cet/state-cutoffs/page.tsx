@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Filter, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Loader2, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -331,7 +331,7 @@ const calculatePercentile = (rank: string | number): number => {
 const getPrecisePercentileRange = (targetPercentile: number): { min: number; max: number } => {
     // Use higher precision (10 decimal places) to avoid floating-point errors
     const max = Math.round(targetPercentile * 10000000000) / 10000000000;
-    const min = Math.max(0, Math.round((targetPercentile - 1) * 10000000000) / 10000000000);
+    const min = Math.max(0, Math.round((targetPercentile - 10) * 10000000000) / 10000000000);
     return { min, max };
 };
 
@@ -403,11 +403,6 @@ export default function StateCutoffsPage() {
     // Memoize expensive data transformations
     const memoizedRecords = useMemo(() => records, [records]);
     const memoizedTotalItems = useMemo(() => totalItems, [totalItems]);
-
-    // Debug useEffect to track currentPage changes
-    useEffect(() => {
-        console.log('currentPage changed to:', currentPage);
-    }, [currentPage]);
 
     // Define columns for the enhanced table with Abel font and swapped score/percentile
     const columns: ColumnDef<CutoffRecord>[] = useMemo(
@@ -768,9 +763,6 @@ export default function StateCutoffsPage() {
             return;
         }
 
-        console.log('Fetching records for page:', currentPage, 'with filters:', debouncedFilters);
-        console.log('Total items:', memoizedTotalItems, 'Items per page:', itemsPerPage);
-
         const requestBody = {
             page: currentPage,
             perPage: itemsPerPage,
@@ -819,9 +811,6 @@ export default function StateCutoffsPage() {
         setLoading(true);
 
         try {
-            console.log(`Making API POST request ${requestId} with body:`, requestBody);
-            console.log('Critical pagination values:', { currentPage, itemsPerPage, memoizedTotalItems });
-
             const response = await fetch(`/api/mht-cet/state-cutoffs`, {
                 method: 'POST',
                 signal: abortControllerRef.current.signal,
@@ -834,7 +823,6 @@ export default function StateCutoffsPage() {
 
             // Check if this is still the latest request
             if (requestId !== requestIdRef.current) {
-                console.log(`Request ${requestId} is outdated, ignoring response`);
                 return;
             }
 
@@ -846,16 +834,12 @@ export default function StateCutoffsPage() {
 
             // Double-check we're still the latest request
             if (requestId !== requestIdRef.current) {
-                console.log(`Request ${requestId} is outdated after parsing, ignoring response`);
                 return;
             }
 
             if (!result.success) {
                 throw new Error(result.error || 'Failed to fetch data');
             }
-
-            console.log(`Request ${requestId} completed successfully with`, result.data.length, 'records on page', result.page, 'of', result.totalPages);
-            console.log('API Response:', { success: result.success, totalItems: result.totalItems, page: result.page, perPage: result.perPage });
 
             // Cache the result (limit cache size to prevent memory issues)
             if (cacheRef.current.size > 50) {
@@ -879,13 +863,11 @@ export default function StateCutoffsPage() {
         } catch (error: any) {
             // Check if this is still the latest request
             if (requestId !== requestIdRef.current) {
-                console.log(`Request ${requestId} error is outdated, ignoring`);
                 return;
             }
 
             if (error.name === 'AbortError') {
                 // Request was cancelled, don't show error
-                console.log(`Request ${requestId} was cancelled`);
                 return;
             }
 
@@ -899,7 +881,7 @@ export default function StateCutoffsPage() {
                 setIsRequestActive(false);
             }
         }
-    }, [currentPage, itemsPerPage, debouncedFilters, memoizedTotalItems]);
+    }, [currentPage, itemsPerPage, debouncedFilters]);
 
     useEffect(() => {
         // Clear any pending pagination timeout
@@ -908,7 +890,6 @@ export default function StateCutoffsPage() {
         }
 
         // Debounce pagination requests to prevent rapid-fire API calls
-        console.log('useEffect triggered - debouncing fetch for current page:', currentPage);
         paginationTimeoutRef.current = setTimeout(() => {
             fetchRecords();
         }, 150); // 150ms debounce for pagination
@@ -1012,29 +993,14 @@ export default function StateCutoffsPage() {
         const now = Date.now();
         const timeSinceLastClick = now - lastPaginationClickRef.current;
 
-        console.log(`handlePageChange called with newPage: ${newPage}, currentPage: ${currentPage}, memoizedTotalItems: ${memoizedTotalItems}, itemsPerPage: ${itemsPerPage}`);
-
         // Always allow the page change, just throttle the timing
         if (newPage >= 1 && newPage <= Math.ceil(memoizedTotalItems / itemsPerPage)) {
-            console.log(`Setting currentPage to: ${newPage} (was: ${currentPage})`);
             setCurrentPage(newPage);
-
-            // Force immediate debug of what happens after state update
-            setTimeout(() => {
-                console.log('After state update, currentPage should be:', newPage);
-            }, 100);
 
             // Update the timestamp to prevent rapid successive clicks
             lastPaginationClickRef.current = now;
-        } else {
-            console.log(`Page change rejected - out of bounds. Valid range: 1 to ${Math.ceil(memoizedTotalItems / itemsPerPage)}`);
         }
-    }, [memoizedTotalItems, itemsPerPage, currentPage]);
-
-    // Debug useEffect to track currentPage changes
-    useEffect(() => {
-        console.log('currentPage changed to:', currentPage);
-    }, [currentPage]);
+    }, [memoizedTotalItems, itemsPerPage]);
 
     return (
         <div className="w-full max-w-full md:max-w-7xl lg:max-w-7xl xl:max-w-7xl 2xl:max-w-7xl mx-auto py-4 md:py-8 lg:py-16 xl:py-24 px-3 md:px-4 lg:px-6 space-y-4 md:space-y-6 font-abel">
@@ -1047,18 +1013,6 @@ export default function StateCutoffsPage() {
                     <p className="text-muted-foreground text-sm md:text-base lg:text-lg font-medium mt-1 md:mt-2 font-abel">
                         Round 1 cutoffs for engineering colleges
                     </p>
-                </div>
-                <div className="flex gap-2 flex-shrink-0 w-full md:w-auto">
-                    <Button
-                        variant="neutral"
-                        onClick={fetchRecords}
-                        disabled={loading}
-                        className="font-abel text-sm md:text-base px-3 md:px-4 py-2 w-full md:w-auto"
-                    >
-                        <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                        <span className="hidden lg:inline">Refresh</span>
-                        <span className="inline lg:hidden">↻</span>
-                    </Button>
                 </div>
             </div>
 
@@ -1091,7 +1045,7 @@ export default function StateCutoffsPage() {
                         {/* Percentile Input */}
                         <div className="space-y-2">
                             <Label className="text-sm md:text-base font-medium flex items-center gap-2 font-abel">
-                                Target Percentile (-1 range)
+                                Target Percentile (-10 range)
                             </Label>
                             <Input
                                 placeholder="Enter percentile (e.g., 95.5)"
@@ -1391,7 +1345,7 @@ export default function StateCutoffsPage() {
                             <Button
                                 onClick={applyFilters}
                                 disabled={!pendingFilters.percentileInput || !hasUnsavedChanges || isSearching}
-                                className="px-6 py-3 font-abel text-sm md:text-base w-full md:w-auto h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:shadow-md"
+                                className="px-6 py-3 font-abel text-sm md:text-base w-full md:w-auto h-12 bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50"
                             >
                                 {isSearching || loading ? (
                                     <>
@@ -1536,7 +1490,7 @@ export default function StateCutoffsPage() {
                     <span className="text-muted-foreground">universities</span>
                 </div>
                 <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
-                    <span className="font-medium">{filters.percentileInput ? '-1%' : 'All'}</span>
+                    <span className="font-medium">{filters.percentileInput ? '-10%' : 'All'}</span>
                     <span className="text-muted-foreground">range</span>
                 </div>
             </div>
@@ -1792,7 +1746,7 @@ export default function StateCutoffsPage() {
                                 <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">1</div>
                                 <div>
                                     <p className="font-semibold text-gray-800">Enter Your Percentile</p>
-                                    <p className="text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -1% range.</p>
+                                    <p className="text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -10% range.</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-2 sm:gap-3">
@@ -1812,7 +1766,7 @@ export default function StateCutoffsPage() {
                         </div>
                         <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
                             <p className="text-xs font-abel text-amber-900">
-                                <span className="font-bold">Pro Tip:</span> The -1% range shows realistic options, helping you find colleges where you have a strong chance of admission.
+                                <span className="font-bold">Pro Tip:</span> The -10% range shows realistic options, helping you find colleges where you have a strong chance of admission.
                             </p>
                         </div>
                     </CardContent>
@@ -1895,6 +1849,17 @@ export default function StateCutoffsPage() {
                                         <p><span className="font-bold">PWD:</span> Persons with Disability</p>
                                         <p><span className="font-bold">MI:</span> Minority Institutions</p>
                                     </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                            <AccordionItem value="item-3" className="border-none bg-gradient-to-br from-emerald-100/60 to-white shadow-lg rounded-xl overflow-hidden">
+                                <AccordionTrigger className="font-abel text-sm sm:text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
+                                    <div className="flex items-center gap-2">
+                                        <Info className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
+                                        <span>Video Explanation</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-emerald-100/80 shadow-inner">
+                                    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/1WA_Vh1jaU4?si=bBGUzsa5AoHX6ONh" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
