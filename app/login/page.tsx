@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 import { SubmitButton } from "./sumbit-button";
 import { Input } from "@/components/ui/input";
-import { login, signup } from './actions'
+import { login } from './actions'
 
-export default function Login(){
+export default async function Login({ searchParams }: { searchParams: Promise<{ message?: string; redirect?: string }> }) {
+  const params = await searchParams
+  const redirectTo = params?.redirect || '/account'
 
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-28 min-h-screen">
@@ -30,41 +30,66 @@ export default function Login(){
         Back
       </Link>
 
-      <form className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
-        <label className="text-md" htmlFor="email">
-          Email
-        </label>
-        <Input
-          className="px-4 py-2 bg-inherit border mb-2"
-          name="email"
-          placeholder="you@example.com"
-          required
-        />
-        <label className="text-md" htmlFor="password">
-          Password
-        </label>
-        <Input
-          className="px-4 py-2 bg-inherit border mb-8"
-          type="password"
-          name="password"
-          placeholder="••••••••"
-          required
-        />
+      {params?.message && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-800 text-sm text-center">{params.message}</p>
+        </div>
+      )}
+
+      <form className="animate-in flex-1 flex flex-col w-full justify-center gap-4 text-foreground">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold">Sign In</h1>
+          <p className="text-muted-foreground">Welcome back! Please sign in to your account.</p>
+        </div>
+
+        <input type="hidden" name="redirect" value={redirectTo} />
+
+        <div>
+          <label className="text-md font-medium" htmlFor="email">
+            Email
+          </label>
+          <Input
+            className="mt-1 px-4 py-2 bg-inherit border"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="text-md font-medium" htmlFor="password">
+            Password
+          </label>
+          <Input
+            className="mt-1 px-4 py-2 bg-inherit border"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            minLength={8}
+          />
+        </div>
+
         <SubmitButton
           formAction={login}
-          className="bg-main border-2 border-black"
+          className="bg-main border-2 border-black mt-4"
           pendingText="Signing In..."
         >
           Sign In
         </SubmitButton>
-        <SubmitButton
-          formAction={signup}
-          className="bg-main border-2 border-black"
-          pendingText="Signing In..."
-        >
-          Sign Up
-        </SubmitButton>
 
+        <div className="text-center mt-4">
+          <p className="text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link
+              href={redirectTo !== '/account' ? `/signup?redirect=${encodeURIComponent(redirectTo)}` : '/signup'}
+              className="text-primary hover:underline font-medium"
+            >
+              Sign up here
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );

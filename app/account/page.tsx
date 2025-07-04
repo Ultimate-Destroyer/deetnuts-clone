@@ -1,12 +1,14 @@
 import AccountForm from './account-form'
-import { createClient } from '@/utils/supabase/server'
+import { getCurrentUser } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
-export default async function Account() {
-  const supabase = createClient()
+export default async function Account({ searchParams }: { searchParams: Promise<{ message?: string }> }) {
+  const user = await getCurrentUser()
+  const params = await searchParams
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  if (!user) {
+    redirect('/login')
+  }
 
-  return <AccountForm user={user} />
+  return <AccountForm user={user} message={params?.message} />
 }

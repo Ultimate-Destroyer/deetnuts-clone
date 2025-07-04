@@ -1,114 +1,123 @@
 import Link from "next/link";
-import { headers } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 import { SubmitButton } from "./sumbit-button";
 import { Input } from "@/components/ui/input";
+import { signup } from '../login/actions'
 
-export default async function Login(
-  props: {
-    searchParams: Promise<{ message: string }>;
-  }
-) {
-  const searchParams = await props.searchParams;
-
-  const signUp = async (formData: FormData) => {
-    "use server";
-
-    const origin = (await headers()).get("origin");
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const firstName = formData.get("firstName") as string;
-    const lastName = formData.get("lastName") as string;
-    const supabase = createClient();
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${origin}/auth/callback`,
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-        },
-      },
-    });
-
-    if (error) {
-      return redirect("/signup?message=Could not authenticate user");
-    }
-
-    return redirect("/signup?message=Check email to continue sign in process");
-  };
+export default async function Signup({ searchParams }: { searchParams: Promise<{ message?: string; redirect?: string }> }) {
+  const params = await searchParams
+  const redirectTo = params?.redirect || '/account'
 
   return (
     <div className="flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 mx-auto pt-28 min-h-screen">
-      <form className="animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground">
       <Link
-        href="/login"
-        className="left-8 top-8 py-2 rounded-md underline underline-offset-4 text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm"
+        href="/"
+        className="absolute left-8 top-8 py-2 px-4 rounded-md no-underline text-foreground bg-btn-background hover:bg-btn-background-hover flex items-center group text-sm"
       >
-        {'<--'} Back
-      </Link>
-      <div className="flex gap-2 mt-8">
-          <div className="flex-1">
-            <label className="text-md" htmlFor="firstName">
-              First Name
-            </label>
-            <Input
-              className="px-4 py-2 bg-inherit border w-full"
-              name="firstName"
-              placeholder="John"
-              required
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-md" htmlFor="lastName">
-              Last Name
-            </label>
-            <Input
-              className="px-4 py-2 bg-inherit border w-full"
-              name="lastName"
-              placeholder="Doe"
-              required
-            />
-          </div>
-        </div>
-        <div className="flex gap-2 mb-8">
-          <div className="flex-1">
-            <label className="text-md" htmlFor="email">
-              Email
-            </label>
-            <Input
-              className="px-4 py-2 bg-inherit border mb-2"
-              name="email"
-              placeholder="you@example.com"
-              required
-            />
-            <label className="text-md" htmlFor="password">
-              Password
-            </label>
-            <Input
-              className="px-4 py-2 bg-inherit border mb-2"
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-        </div>
-        <SubmitButton
-          formAction={signUp}
-          className="bg-main border-2 border-black"
-          pendingText="Signing Up..."
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1"
         >
-          Sign Up
-        </SubmitButton>
-        {searchParams?.message && (
-          <p className="mt-4 p-4 bg-foreground/10 text-foreground text-center">
-            {searchParams.message}
+          <polyline points="15 18 9 12 15 6" />
+        </svg>{" "}
+        Back
+      </Link>
+
+      {params?.message && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-800 text-sm text-center">{params.message}</p>
+        </div>
+      )}
+
+      <form className="animate-in flex-1 flex flex-col w-full justify-center gap-4 text-foreground">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold">Create Account</h1>
+          <p className="text-muted-foreground">Sign up to get started with your account.</p>
+        </div>
+
+        <input type="hidden" name="redirect" value={redirectTo} />
+
+        <div>
+          <label className="text-md font-medium" htmlFor="name">
+            Full Name
+          </label>
+          <Input
+            className="mt-1 px-4 py-2 bg-inherit border"
+            name="name"
+            type="text"
+            placeholder="John Doe"
+            required
+            minLength={2}
+          />
+        </div>
+
+        <div>
+          <label className="text-md font-medium" htmlFor="email">
+            Email
+          </label>
+          <Input
+            className="mt-1 px-4 py-2 bg-inherit border"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="text-md font-medium" htmlFor="password">
+            Password
+          </label>
+          <Input
+            className="mt-1 px-4 py-2 bg-inherit border"
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            required
+            minLength={8}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Password must be at least 8 characters long
           </p>
-        )}
+        </div>
+
+        <div>
+          <label className="text-md font-medium" htmlFor="passwordConfirm">
+            Confirm Password
+          </label>
+          <Input
+            className="mt-1 px-4 py-2 bg-inherit border"
+            type="password"
+            name="passwordConfirm"
+            placeholder="••••••••"
+            required
+            minLength={8}
+          />
+        </div>
+
+        <SubmitButton
+          formAction={signup}
+          className="bg-main border-2 border-black mt-4"
+          pendingText="Creating Account..."
+        >
+          Create Account
+        </SubmitButton>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary hover:underline font-medium">
+              Sign in here
+            </Link>
+          </p>
+        </div>
       </form>
     </div>
   );

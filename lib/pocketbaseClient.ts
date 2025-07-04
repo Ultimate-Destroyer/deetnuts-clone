@@ -1,4 +1,5 @@
 import PocketBase, { ClientResponseError } from 'pocketbase';
+import { cookies } from 'next/headers';
 
 /**
  * Global auth cache to persist across API calls
@@ -44,7 +45,51 @@ function isCachedAuthValid(): boolean {
 }
 
 /**
- * Server-side authentication function (for API routes only)
+ * User-based authentication function (uses logged-in user's token)
+ * This function ensures that the API request is made with the user's authentication,
+ * respecting any collection-level permissions that may be set in PocketBase.
+ */
+export async function ensureUserAuthenticated(): Promise<void> {
+  const pocketbase = getPocketBase();
+
+  try {
+    const cookieStore = await cookies();
+    const authCookie = cookieStore.get('pb_auth');
+
+    if (!authCookie?.value) {
+      throw new Error('No authentication cookie found');
+    }
+
+    // Load the user's authentication from cookie
+    pocketbase.authStore.loadFromCookie(authCookie.value);
+
+    if (!pocketbase.authStore.isValid) {
+      throw new Error('Invalid authentication token');
+    }
+
+    // Try to refresh the auth to ensure it's still valid
+    try {
+      await pocketbase.collection('users').authRefresh();
+    } catch (refreshError) {
+      throw new Error('Authentication token expired or invalid');
+    }
+
+    // Cache the auth for subsequent requests in the same API call
+    globalAuthCache = {
+      token: pocketbase.authStore.token,
+      model: pocketbase.authStore.model,
+      timestamp: Date.now()
+    };
+
+  } catch (error) {
+    console.error('User authentication failed:', error);
+    throw new Error(`User authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Server-side authentication function (for API routes only) - DEPRECATED
+ * Use ensureUserAuthenticated instead for user-based auth
  */
 export async function ensureAuthenticatedServer(): Promise<void> {
   const pocketbase = getPocketBase();
