@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Loader2, Search, Filter, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -331,8 +331,13 @@ const calculatePercentile = (rank: string | number): number => {
 const getPrecisePercentileRange = (targetPercentile: number): { min: number; max: number } => {
     // Use higher precision (10 decimal places) to avoid floating-point errors
     const max = Math.round(targetPercentile * 10000000000) / 10000000000;
-    const min = Math.max(0, Math.round((targetPercentile - 10) * 10000000000) / 10000000000);
+    const min = 0; // Changed: range from target percentile down to 0%
     return { min, max };
+};
+
+// Helper function to calculate distance from target percentile
+const calculatePercentileDistance = (currentPercentile: number, targetPercentile: number): number => {
+    return Math.round((targetPercentile - currentPercentile) * 100) / 100;
 };
 
 // Debounce hook for performance optimization
@@ -406,291 +411,340 @@ export default function StateCutoffsPage() {
 
     // Define columns for the enhanced table with Abel font and swapped score/percentile
     const columns: ColumnDef<CutoffRecord>[] = useMemo(
-        () => [
-            {
-                accessorKey: "college_name",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            College Name
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
-                },
-                cell: ({ row }) => (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="font-abel font-medium max-w-[200px] sm:max-w-[300px] truncate cursor-help text-xs sm:text-sm lg:text-base px-2 sm:px-3">
-                                    {row.getValue("college_name")}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="max-w-md font-abel text-sm">{row.getValue("college_name")}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                ),
-                size: 300,
-            },
-            {
-                accessorKey: "course_name",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Course Name
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
-                },
-                cell: ({ row }) => (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="font-abel font-medium max-w-[180px] sm:max-w-[250px] truncate cursor-help text-xs sm:text-sm lg:text-base px-2 sm:px-3">
-                                    {row.getValue("course_name")}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="max-w-md font-abel text-sm">{row.getValue("course_name")}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                ),
-                size: 250,
-            },
-            {
-                accessorKey: "category",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Category
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
-                },
-                cell: ({ row }) => (
-                    <div className="px-2 sm:px-3">
-                        <Badge variant="neutral" className="font-abel text-xs sm:text-sm w-fit font-medium">
-                            {row.getValue("category")}
-                        </Badge>
-                    </div>
-                ),
-                size: 120,
-            },
-            {
-                accessorKey: "last_rank",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Rank
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
-                },
-                cell: ({ row }) => {
-                    const rank = row.getValue("last_rank") as string;
-                    const numRank = parseInt(rank);
-                    return (
-                        <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base px-2 sm:px-3">
-                            {isNaN(numRank) ? rank : numRank.toLocaleString()}
-                        </div>
-                    );
-                },
-                size: 100,
-            },
-            {
-                accessorKey: "cutoff_score",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Percentile
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
-                },
-                cell: ({ row }) => (
-                    <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base px-2 sm:px-3">
-                        {row.getValue("cutoff_score")}
-                    </div>
-                ),
-                size: 100,
-            },
-            {
-                accessorKey: "total_admitted",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Admitted
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
-                },
-                cell: ({ row }) => {
-                    const value = row.getValue("total_admitted") as number;
-                    return (
+        () => {
+            const baseColumns: ColumnDef<CutoffRecord>[] = [
+                {
+                    accessorKey: "college_name",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                College Name
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => (
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base cursor-help px-2 sm:px-3">
-                                        {value.toLocaleString()}
+                                    <div className="font-abel font-medium max-w-[200px] sm:max-w-[300px] truncate text-xs sm:text-sm lg:text-base px-2 sm:px-3 cursor-help">
+                                        {row.getValue("college_name")}
                                     </div>
                                 </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="font-abel text-sm">Total students admitted: {value}</p>
+                                <TooltipContent side="top" className="max-w-xs z-50">
+                                    <p className="font-abel text-sm">{row.getValue("college_name")}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
-                    );
+                    ),
+                    size: 300,
                 },
-                size: 100,
-            },
-            {
-                accessorKey: "college_code",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            College Code
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
+                {
+                    accessorKey: "course_name",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Course Name
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="font-abel font-medium max-w-[180px] sm:max-w-[250px] truncate text-xs sm:text-sm lg:text-base px-2 sm:px-3 cursor-help">
+                                        {row.getValue("course_name")}
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs z-50">
+                                    <p className="font-abel text-sm">{row.getValue("course_name")}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    ),
+                    size: 250,
                 },
-                cell: ({ row }) => (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="font-abel text-xs sm:text-sm w-[90px] sm:w-[110px] font-medium cursor-help px-2 sm:px-3">
-                                    {row.getValue("college_code")}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="font-abel text-sm">College Code: {row.getValue("college_code")}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                ),
-                size: 110,
-            },
-            {
-                accessorKey: "course_code",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Course Code
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
+                {
+                    accessorKey: "category",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Category
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => (
+                        <div className="px-2 sm:px-3">
+                            <Badge variant="neutral" className="font-abel text-xs sm:text-sm w-fit font-medium">
+                                {row.getValue("category")}
+                            </Badge>
+                        </div>
+                    ),
+                    size: 120,
                 },
-                cell: ({ row }) => (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="font-abel text-xs sm:text-sm w-[90px] sm:w-[110px] font-medium cursor-help px-2 sm:px-3">
-                                    {row.getValue("course_code")}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="font-abel text-sm">Course Code: {row.getValue("course_code")}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                ),
-                size: 110,
-            },
-            {
-                accessorKey: "status",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Status
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
+                {
+                    accessorKey: "last_rank",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Rank
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => {
+                        const rank = row.getValue("last_rank") as string;
+                        const numRank = parseInt(rank);
+                        return (
+                            <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base px-2 sm:px-3">
+                                {isNaN(numRank) ? rank : numRank.toLocaleString()}
+                            </div>
+                        );
+                    },
+                    size: 100,
                 },
-                cell: ({ row }) => (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="font-abel text-xs sm:text-sm w-[150px] sm:w-[180px] font-medium cursor-help px-2 sm:px-3 truncate">
-                                    {row.getValue("status")}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="font-abel text-sm max-w-md">{row.getValue("status")}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                ),
-                size: 180,
-            },
-            {
-                accessorKey: "home_university",
-                header: ({ column }) => {
-                    return (
-                        <Button
-                            variant="link"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
-                        >
-                            Home University
-                            <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
-                    )
+                {
+                    accessorKey: "cutoff_score",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Percentile
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => {
+                        const currentPercentile = parseFloat(row.getValue("cutoff_score") as string);
+                        const showDistance = filters.percentileInput && !isNaN(parseFloat(filters.percentileInput));
+
+                        if (showDistance) {
+                            const targetPercentile = parseFloat(filters.percentileInput);
+                            const distance = calculatePercentileDistance(currentPercentile, targetPercentile);
+                            const isTarget = Math.abs(distance) < 0.01;
+
+                            return (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <div className="flex flex-col items-end gap-1 w-[120px] sm:w-[140px] px-2 sm:px-3">
+                                                <div className="text-right font-abel font-medium text-xs sm:text-sm lg:text-base">
+                                                    {row.getValue("cutoff_score")}
+                                                </div>
+                                                <Badge
+                                                    variant="neutral"
+                                                    className={`text-xs px-1 py-0 font-abel ${isTarget ? 'bg-green-100 text-green-700 border-green-300' :
+                                                        distance < 0 ? 'bg-blue-100 text-blue-700 border-blue-300' :
+                                                            'bg-red-100 text-red-700 border-red-300'
+                                                        }`}
+                                                >
+                                                    {isTarget ? 'TARGET' : `${distance < 0 ? '' : '-'}${Math.abs(distance)}%`}
+                                                </Badge>
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="max-w-xs">
+                                            <p className="font-abel text-sm">
+                                                {isTarget ? 'This matches your target percentile exactly' :
+                                                    distance < 0 ? `This is ${Math.abs(distance)}% below your target of ${targetPercentile}%` :
+                                                        `This is ${Math.abs(distance)}% above your target of ${targetPercentile}%`}
+                                            </p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            );
+                        }
+
+                        return (
+                            <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base px-2 sm:px-3">
+                                {row.getValue("cutoff_score")}
+                            </div>
+                        );
+                    },
+                    size: (filters.percentileInput && !isNaN(parseFloat(filters.percentileInput))) ? 140 : 100,
+                }
+            ];
+
+            // Add remaining columns
+            baseColumns.push(
+                {
+                    accessorKey: "total_admitted",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Admitted
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => {
+                        const value = row.getValue("total_admitted") as number;
+                        return (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="text-right font-abel font-medium w-[80px] sm:w-[100px] text-xs sm:text-sm lg:text-base px-2 sm:px-3 cursor-help">
+                                            {value.toLocaleString()}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="z-50">
+                                        <p className="font-abel text-sm">Total students admitted: {value}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        );
+                    },
+                    size: 100,
                 },
-                cell: ({ row }) => (
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="font-abel text-xs sm:text-sm w-[200px] sm:w-[250px] font-medium cursor-help px-2 sm:px-3 truncate">
-                                    {row.getValue("home_university")}
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className="font-abel text-sm max-w-md">{row.getValue("home_university")}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                ),
-                size: 250,
-            },
-        ],
-        []
+                {
+                    accessorKey: "college_code",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                College Code
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="font-abel text-xs sm:text-sm w-[90px] sm:w-[110px] font-medium px-2 sm:px-3 cursor-help">
+                                        {row.getValue("college_code")}
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="z-50">
+                                    <p className="font-abel text-sm">College Code: {row.getValue("college_code")}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    ),
+                    size: 110,
+                },
+                {
+                    accessorKey: "course_code",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Course Code
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="font-abel text-xs sm:text-sm w-[90px] sm:w-[110px] font-medium px-2 sm:px-3 cursor-help">
+                                        {row.getValue("course_code")}
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="z-50">
+                                    <p className="font-abel text-sm">Course Code: {row.getValue("course_code")}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    ),
+                    size: 110,
+                },
+                {
+                    accessorKey: "status",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Status
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="font-abel text-xs sm:text-sm w-[150px] sm:w-[180px] font-medium px-2 sm:px-3 truncate cursor-help">
+                                        {row.getValue("status")}
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs z-50">
+                                    <p className="font-abel text-sm">{row.getValue("status")}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    ),
+                    size: 180,
+                },
+                {
+                    accessorKey: "home_university",
+                    header: ({ column }) => {
+                        return (
+                            <Button
+                                variant="link"
+                                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                                className="h-8 sm:h-10 px-2 sm:px-3 lg:px-4 font-abel text-xs sm:text-sm lg:text-base"
+                            >
+                                Home University
+                                <ArrowUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                            </Button>
+                        )
+                    },
+                    cell: ({ row }) => (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="font-abel text-xs sm:text-sm w-[200px] sm:w-[250px] font-medium px-2 sm:px-3 truncate cursor-help">
+                                        {row.getValue("home_university")}
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs z-50">
+                                    <p className="font-abel text-sm">{row.getValue("home_university")}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    ),
+                    size: 250,
+                }
+            );
+
+            return baseColumns;
+        },
+        [filters.percentileInput]
     );
 
     // Create table instance
@@ -989,6 +1043,68 @@ export default function StateCutoffsPage() {
     }, []);
 
     // Throttled pagination function to prevent rapid clicking
+    // State for export functionality
+    const [isExporting, setIsExporting] = useState(false);
+
+    // Export function
+    const exportToCSV = async () => {
+        setIsExporting(true);
+        try {
+            // Build query parameters for export
+            const params = new URLSearchParams();
+
+            if (filters.search) params.append('search', filters.search);
+            if (filters.categories.length > 0) {
+                filters.categories.forEach(cat => params.append('categories', cat));
+            }
+            if (filters.courses.length > 0) {
+                filters.courses.forEach(course => params.append('courses', course));
+            }
+            if (filters.statuses.length > 0) {
+                filters.statuses.forEach(status => params.append('statuses', status));
+            }
+            if (filters.homeUniversities.length > 0) {
+                filters.homeUniversities.forEach(uni => params.append('homeUniversities', uni));
+            }
+            if (filters.percentileInput) {
+                params.append('percentileInput', filters.percentileInput);
+            }
+
+            // Fetch the CSV export
+            const response = await fetch(`/api/mht-cet/state-cutoffs/export?${params.toString()}`);
+
+            if (!response.ok) {
+                throw new Error('Export failed');
+            }
+
+            // Get the blob and create download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `mht_cet_state_cutoffs_2024_filtered.csv`;
+
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up
+            setTimeout(() => {
+                if (a.parentNode) {
+                    document.body.removeChild(a);
+                }
+                window.URL.revokeObjectURL(url);
+            }, 100);
+
+            toast.success('Export completed successfully!');
+        } catch (error) {
+            console.error('Export error:', error);
+            toast.error('Failed to export data. Please try again.');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     const handlePageChange = useCallback((newPage: number) => {
         const now = Date.now();
         const timeSinceLastClick = now - lastPaginationClickRef.current;
@@ -1014,6 +1130,25 @@ export default function StateCutoffsPage() {
                         Round 1 cutoffs for engineering colleges
                     </p>
                 </div>
+                <div className="flex flex-col md:flex-row gap-2 md:gap-3">
+                    {/* Stats */}
+                    {totalItems > 0 && (
+                        <div className="bg-white border-2 border-black rounded-base p-3 shadow-base">
+                            <p className="text-xs text-black font-abel">Total Records</p>
+                            <p className="text-lg font-heading text-black">{totalItems.toLocaleString()}</p>
+                        </div>
+                    )}
+                    {/* Export Button */}
+                    <Button
+                        onClick={exportToCSV}
+                        disabled={isExporting || loading || records.length === 0}
+                        variant="neutral"
+                        className="h-fit font-abel"
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        {isExporting ? "Exporting..." : "Export CSV"}
+                    </Button>
+                </div>
             </div>
 
             {/* Filters */}
@@ -1036,8 +1171,14 @@ export default function StateCutoffsPage() {
                         <Input
                             placeholder="Search colleges, courses..."
                             value={pendingFilters.search}
-                            onChange={(e) => setPendingFilters(prev => ({ ...prev, search: e.target.value }))}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Basic sanitization - remove any non-printable characters and limit length
+                                const sanitized = value.replace(/[^\x20-\x7E]/g, '').slice(0, 100);
+                                setPendingFilters(prev => ({ ...prev, search: sanitized }));
+                            }}
                             className="pl-10 font-abel text-sm md:text-base h-12"
+                            maxLength={100}
                         />
                     </div>
 
@@ -1045,32 +1186,62 @@ export default function StateCutoffsPage() {
                         {/* Percentile Input */}
                         <div className="space-y-2">
                             <Label className="text-sm md:text-base font-medium flex items-center gap-2 font-abel">
-                                Target Percentile (-10 range)
+                                Target Percentile (from 0% to target)
+                                <span className="text-xs text-muted-foreground font-normal">(e.g., 88.1234567)</span>
                             </Label>
-                            <Input
-                                placeholder="Enter percentile (e.g., 95.5)"
-                                value={pendingFilters.percentileInput}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    // Allow numbers and decimal point
-                                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-                                        const numValue = parseFloat(value);
-                                        if (value === '' || (numValue >= 0 && numValue <= 100)) {
+                            <div className="relative">
+                                <Input
+                                    placeholder="Enter percentile (e.g., 95.1234567)"
+                                    value={pendingFilters.percentileInput}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+
+                                        // Allow empty string
+                                        if (value === '') {
                                             setPendingFilters(prev => ({ ...prev, percentileInput: value }));
+                                            return;
                                         }
-                                    }
-                                }}
-                                type="text"
-                                className="font-abel text-sm md:text-base h-12"
-                            />
+
+                                        // More flexible regex for decimal input
+                                        // Allows: 0-100, with optional decimal point and up to 7 decimal places
+                                        const percentileRegex = /^(100(\.0{1,7})?|[0-9]{1,2}(\.\d{0,7})?)$/;
+
+                                        // First check if it matches the pattern or is a partial valid input
+                                        const partialRegex = /^(100(\.0{0,7})?|[0-9]{1,2}(\.\d{0,7})?|\.)$/;
+
+                                        if (partialRegex.test(value)) {
+                                            // If it's a complete valid number, check range
+                                            if (percentileRegex.test(value)) {
+                                                const numValue = parseFloat(value);
+                                                if (numValue >= 0 && numValue <= 100) {
+                                                    setPendingFilters(prev => ({ ...prev, percentileInput: value }));
+                                                }
+                                            } else {
+                                                // Allow partial input (like "95." while typing)
+                                                setPendingFilters(prev => ({ ...prev, percentileInput: value }));
+                                            }
+                                        }
+                                    }}
+                                    type="text"
+                                    className="font-abel text-sm md:text-base h-12 pr-12"
+                                    maxLength={11}
+                                />
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground font-abel">
+                                    %
+                                </div>
+                            </div>
                             {pendingFilters.percentileInput && (
-                                <p className="text-xs sm:text-sm text-muted-foreground font-abel">
-                                    {(() => {
-                                        const target = parseFloat(pendingFilters.percentileInput);
-                                        const range = getPrecisePercentileRange(target);
-                                        return `Will show percentiles from ${range.min}% to ${range.max}%`;
-                                    })()}
-                                </p>
+                                <div className="flex items-start gap-2 p-2 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p className="text-xs sm:text-sm text-blue-700 font-abel">
+                                        {(() => {
+                                            const target = parseFloat(pendingFilters.percentileInput);
+                                            if (isNaN(target)) return "Please enter a valid percentile number";
+                                            const range = getPrecisePercentileRange(target);
+                                            return `Will show percentiles from ${range.min}% to ${range.max}% (all options at or below your target)`;
+                                        })()}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -1490,7 +1661,7 @@ export default function StateCutoffsPage() {
                     <span className="text-muted-foreground">universities</span>
                 </div>
                 <div className="flex items-center gap-1 md:gap-2 bg-muted/50 px-2 md:px-3 py-1 md:py-2 rounded-md">
-                    <span className="font-medium">{filters.percentileInput ? '-10%' : 'All'}</span>
+                    <span className="font-medium">{filters.percentileInput ? '0% to target' : 'All'}</span>
                     <span className="text-muted-foreground">range</span>
                 </div>
             </div>
@@ -1539,24 +1710,10 @@ export default function StateCutoffsPage() {
                             </div>
                         </div>
                     ) : loading ? (
-                        <div className="flex flex-col items-center justify-center py-12 md:py-16 space-y-4 px-4">
-                            <div className="relative">
-                                <Loader2 className="h-8 w-8 md:h-12 md:w-12 animate-spin text-blue-500" />
-                                <div className="absolute inset-0 h-8 w-8 md:h-12 md:w-12 rounded-full border-2 border-blue-100"></div>
-                            </div>
-                            <div className="text-center space-y-2">
-                                <h3 className="text-base md:text-lg font-medium font-abel">Loading Cutoff Data</h3>
-                                <p className="text-xs md:text-sm text-muted-foreground font-abel max-w-md">
-                                    Fetching the latest MHT-CET state cutoffs...
-                                </p>
-                                <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground font-abel">
-                                    <span>This may take a few seconds</span>
-                                    <div className="flex gap-1">
-                                        <div className="w-1 h-1 bg-blue-500 rounded-full animate-pulse"></div>
-                                        <div className="w-1 h-1 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                                        <div className="w-1 h-1 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                                    </div>
-                                </div>
+                        <div className="flex flex-col items-center justify-center py-8 md:py-12 space-y-3 px-4">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                <span className="text-sm md:text-base font-medium font-abel text-gray-700">Loading cutoffs...</span>
                             </div>
                         </div>
                     ) : (
@@ -1728,91 +1885,101 @@ export default function StateCutoffsPage() {
                 </CardContent>
             </Card>
 
-            {/* Informational Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
+
+            {/* Informational Cards - Improved Design & UX */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
                 {/* How to Use This Tool */}
-                <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <Card className="relative bg-gradient-to-br from-blue-50 to-white border-blue-200 shadow-md transition-all duration-300 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-200 opacity-70 transition-all duration-300" />
                     <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-abel text-blue-900">
-                            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <Lightbulb className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-blue-900">
+                            <div className="h-10 w-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow group-hover:bg-blue-200 transition-all duration-200">
+                                <Lightbulb className="h-5 w-5 text-blue-600 group-hover:text-blue-800 transition-all duration-200" />
                             </div>
                             How to Use This Tool
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3 sm:space-y-4 pt-2">
-                        <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm font-abel">
-                            <div className="flex items-start gap-2 sm:gap-3">
-                                <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">1</div>
-                                <div>
-                                    <p className="font-semibold text-gray-800">Enter Your Percentile</p>
-                                    <p className="text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -10% range.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-2 sm:gap-3">
-                                <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">2</div>
-                                <div>
-                                    <p className="font-semibold text-gray-800">Filter Your Preferences</p>
-                                    <p className="text-gray-600 text-xs">Select categories, courses, and seat types to narrow down results.</p>
-                                </div>
-                            </div>
-                            <div className="flex items-start gap-2 sm:gap-3">
-                                <div className="flex-shrink-0 mt-0.5 sm:mt-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-xs">3</div>
-                                <div>
-                                    <p className="font-semibold text-gray-800">Analyze & Strategize</p>
-                                    <p className="text-gray-600 text-xs">Results are sorted by highest cutoff. Use this to plan your CAP round choices.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
-                            <p className="text-xs font-abel text-amber-900">
-                                <span className="font-bold">Pro Tip:</span> The -10% range shows realistic options, helping you find colleges where you have a strong chance of admission.
-                            </p>
+                    <CardContent className="space-y-4 pt-2">
+                        <ol className="space-y-3 text-sm font-abel">
+                            <li className="flex items-start gap-3">
+                                <span className="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-base shadow">1</span>
+                                <span>
+                                    <span className="font-semibold text-gray-800">Enter Your Percentile</span>
+                                    <span className="block text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -10% range.</span>
+                                </span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-base shadow">2</span>
+                                <span>
+                                    <span className="font-semibold text-gray-800">Filter Your Preferences</span>
+                                    <span className="block text-gray-600 text-xs">Select categories, courses, and seat types to narrow down results.</span>
+                                </span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-base shadow">3</span>
+                                <span>
+                                    <span className="font-semibold text-gray-800">Analyze & Strategize</span>
+                                    <span className="block text-gray-600 text-xs">Results are sorted by highest cutoff. Use this to plan your CAP round choices.</span>
+                                </span>
+                            </li>
+                        </ol>
+                        <div className="mt-2 p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg flex items-center gap-2">
+                            <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-amber-200 text-amber-800 font-bold mr-2">
+                                <Lightbulb className="h-3 w-3" />
+                            </span>
+                            <span className="text-xs font-abel text-amber-900">
+                                <span className="font-bold">Pro Tip:</span> Enter your percentile to see all colleges where you have a chance of admission (from 0% to your target percentile). Results show the distance from your target.
+                            </span>
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Seat Allocation Types */}
-                <Card className="bg-gradient-to-br from-purple-50 to-white border-purple-100 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <Card className="relative bg-gradient-to-br from-purple-50 to-white border-purple-200 shadow-md transition-all duration-300 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-purple-200 opacity-70 transition-all duration-300" />
                     <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-abel text-purple-900">
-                            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-purple-900">
+                            <div className="h-10 w-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow group-hover:bg-purple-200 transition-all duration-200">
+                                <MapPin className="h-5 w-5 text-purple-600 group-hover:text-purple-800 transition-all duration-200" />
                             </div>
                             Seat Allocation Types
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-2 sm:space-y-3 pt-2 text-xs sm:text-sm font-abel">
-                        <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg bg-white border border-gray-200">
-                            <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
+                    <CardContent className="space-y-3 pt-2 text-sm font-abel">
+                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 group-hover:border-purple-300 transition-all">
+                            <ShieldCheck className="h-5 w-5 text-green-600 flex-shrink-0" />
                             <div>
-                                <p className="font-semibold text-gray-800">State Level</p>
-                                <p className="text-xs text-gray-600">Open to all Maharashtra candidates.</p>
+                                <span className="font-semibold text-gray-800">State Level</span>
+                                <span className="block text-xs text-gray-600">Open to all Maharashtra candidates.</span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg bg-white border border-gray-200">
-                            <Building className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 group-hover:border-purple-300 transition-all">
+                            <Building className="h-5 w-5 text-blue-600 flex-shrink-0" />
                             <div>
-                                <p className="font-semibold text-gray-800">Home University</p>
-                                <p className="text-xs text-gray-600">For students within the same university region.</p>
+                                <span className="font-semibold text-gray-800">Home University</span>
+                                <span className="block text-xs text-gray-600">For students within the same university region.</span>
                             </div>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3 p-2 rounded-lg bg-white border border-gray-200">
-                            <Users className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
+                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 group-hover:border-purple-300 transition-all">
+                            <Users className="h-5 w-5 text-orange-600 flex-shrink-0" />
                             <div>
-                                <p className="font-semibold text-gray-800">Other University</p>
-                                <p className="text-xs text-gray-600">For students from different university regions.</p>
+                                <span className="font-semibold text-gray-800">Other University</span>
+                                <span className="block text-xs text-gray-600">For students from different university regions.</span>
                             </div>
+                        </div>
+                        <div className="mt-2 text-xs text-purple-800 font-abel bg-purple-50 rounded px-2 py-1">
+                            <span className="font-bold">Tip:</span> Hover on seat types in the table for more info.
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Category and Code Legends */}
-                <Card className="bg-gradient-to-br from-emerald-50 to-white border-emerald-100 shadow-sm hover:shadow-md transition-shadow duration-300 md:col-span-2 xl:col-span-1">
+                <Card className="relative bg-gradient-to-br from-emerald-50 to-white border-emerald-200 shadow-md transition-all duration-300 md:col-span-2 xl:col-span-1 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-200 opacity-70 transition-all duration-300" />
                     <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-2 sm:gap-3 text-base sm:text-lg font-abel text-emerald-900">
-                            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <BookUser className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
+                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-emerald-900">
+                            <div className="h-10 w-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow group-hover:bg-emerald-200 transition-all duration-200">
+                                <BookUser className="h-5 w-5 text-emerald-600 group-hover:text-emerald-800 transition-all duration-200" />
                             </div>
                             Category & Code Legends
                         </CardTitle>
@@ -1820,9 +1987,9 @@ export default function StateCutoffsPage() {
                     <CardContent className="pt-2">
                         <Accordion type="single" collapsible className="w-full space-y-3">
                             <AccordionItem value="item-1" className="border-none bg-gradient-to-br from-emerald-100/60 to-white shadow-lg rounded-xl overflow-hidden">
-                                <AccordionTrigger className="font-abel text-sm sm:text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
+                                <AccordionTrigger className="font-abel text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
                                     <div className="flex items-center gap-2">
-                                        <Info className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
+                                        <Info className="h-5 w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
                                         <span>Category Code Format</span>
                                     </div>
                                 </AccordionTrigger>
@@ -1835,9 +2002,9 @@ export default function StateCutoffsPage() {
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="item-2" className="border-none bg-gradient-to-br from-purple-100/60 to-white shadow-lg rounded-xl overflow-hidden">
-                                <AccordionTrigger className="font-abel text-sm sm:text-base font-semibold text-purple-900 hover:no-underline px-4 py-3 bg-purple-50/80 rounded-t-xl group transition-all duration-200">
+                                <AccordionTrigger className="font-abel text-base font-semibold text-purple-900 hover:no-underline px-4 py-3 bg-purple-50/80 rounded-t-xl group transition-all duration-200">
                                     <div className="flex items-center gap-2">
-                                        <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 group-data-[state=open]:text-purple-800 transition-colors" />
+                                        <GraduationCap className="h-5 w-5 text-purple-600 group-data-[state=open]:text-purple-800 transition-colors" />
                                         <span>Special Category Codes</span>
                                     </div>
                                 </AccordionTrigger>
@@ -1852,14 +2019,16 @@ export default function StateCutoffsPage() {
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="item-3" className="border-none bg-gradient-to-br from-emerald-100/60 to-white shadow-lg rounded-xl overflow-hidden">
-                                <AccordionTrigger className="font-abel text-sm sm:text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
+                                <AccordionTrigger className="font-abel text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
                                     <div className="flex items-center gap-2">
-                                        <Info className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
+                                        <Info className="h-5 w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
                                         <span>Video Explanation</span>
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-emerald-100/80 shadow-inner">
-                                    <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/1WA_Vh1jaU4?si=bBGUzsa5AoHX6ONh" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+                                    <div className="aspect-video w-full max-w-full rounded overflow-hidden">
+                                        <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/1WA_Vh1jaU4?si=bBGUzsa5AoHX6ONh" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen className="w-full h-48 md:h-56 rounded" />
+                                    </div>
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>

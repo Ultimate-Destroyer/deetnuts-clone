@@ -7,7 +7,7 @@ export default function CommunityPartners() {
       name: 'r/mht_cet',
       description: 'Community for MHT-CET aspirants to discuss exams, colleges, and admissions.',
       url: 'https://www.reddit.com/r/mht_cet/',
-      members: '9k+',
+      members: '15k+',
       logo: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1743018533/deetnuts/communityIcon_a7um82b5fowa1_rifsjq.webp',
       banner: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1743018683/deetnuts/bannerBackgroundImage_pgczyvumruxa1_ji8x8s.webp',
       highlights: ['Exam Prep', 'College Reviews']
@@ -16,7 +16,7 @@ export default function CommunityPartners() {
       name: 'r/btechtards',
       description: 'Discussion forum for engineering students in India to share experiences and advice.',
       url: 'https://www.reddit.com/r/btechtards/',
-      members: '215k+',
+      members: '300k+',
       logo: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1743018533/deetnuts/communityIcon_15c8yp4pap9d1_yhjada.webp',
       banner: 'https://res.cloudinary.com/dfyrk32ua/image/upload/v1743018682/deetnuts/bannerBackgroundImage_gorno5tpjbtc1_k4zvvf.webp',
       highlights: ['Placement Tips', 'College Life']
@@ -37,7 +37,7 @@ export default function CommunityPartners() {
             Join our official Reddit partners where students share experiences and advice
           </p>
         </div>
-        
+
         <div className="mx-auto grid w-container max-w-7xl grid-cols-1 gap-8 px-5 sm:grid-cols-2">
           {partners.map((partner, i) => (
             <div
@@ -45,16 +45,16 @@ export default function CommunityPartners() {
               className="flex flex-col rounded-base border-2 border-black bg-white overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-4px] hover:shadow-[6px_10px_0px_0px_rgba(0,0,0,1)] transition-all duration-300"
             >
               {/* Banner Image */}
-              <div 
+              <div
                 className="relative h-32 bg-cover bg-center border-b-2 border-black"
-                style={{ 
+                style={{
                   backgroundImage: `url(${partner.banner})`,
                   backgroundPosition: 'center 30%',
                   backgroundSize: '300% auto'
                 }}
               >
                 <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                
+
                 {/* Official Partner Badge - More prominent */}
                 <div className="absolute top-3 right-3 z-10 bg-white border-2 border-black rounded-md px-3 py-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                   <div className="flex items-center">
@@ -66,17 +66,17 @@ export default function CommunityPartners() {
                     <span className="text-xs font-extrabold tracking-wide">OFFICIAL PARTNER</span>
                   </div>
                 </div>
-                
+
                 {/* Logo overlapping banner and content */}
                 <div className="absolute -bottom-8 left-4 h-20 w-20 rounded-full border-2 border-black bg-white p-1 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                  <img 
-                    src={partner.logo} 
+                  <img
+                    src={partner.logo}
                     alt={partner.name}
                     className="h-full w-full rounded-full object-cover"
                   />
                 </div>
               </div>
-              
+
               <div className="p-6 pt-12">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center">
@@ -89,7 +89,7 @@ export default function CommunityPartners() {
                     {partner.members} members
                   </span>
                 </div>
-                
+
                 <div className="mb-4 flex items-center">
                   <div className="inline-flex items-center text-xs bg-[#FF4500] text-white border-2 border-black rounded-md px-2.5 py-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 mr-1.5" fill="currentColor">
@@ -98,27 +98,27 @@ export default function CommunityPartners() {
                     <span className="font-bold tracking-wide">Reddit Community</span>
                   </div>
                 </div>
-                
+
                 <p className="text-sm mb-4">{partner.description}</p>
-                
+
                 <div className="mb-5 flex flex-wrap gap-2">
                   {partner.highlights.map((highlight, index) => (
-                    <span 
-                      key={index} 
+                    <span
+                      key={index}
                       className="inline-block px-2.5 py-1 bg-gray-100 text-xs font-medium border-2 border-black rounded-md"
                     >
                       {highlight}
                     </span>
                   ))}
                 </div>
-                
+
                 <div className="flex items-center justify-between border-t-2 border-dashed border-gray-200 pt-4">
                   <div className="flex items-center">
                     <Users className="h-4 w-4 mr-1.5 text-gray-600" />
                     <span className="text-sm font-medium">{partner.members}</span>
                   </div>
-                  
-                  <Link 
+
+                  <Link
                     href={partner.url}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -132,7 +132,7 @@ export default function CommunityPartners() {
             </div>
           ))}
         </div>
-        
+
         <div className="mt-12 text-center">
           <div className="inline-block border-2 border-black bg-yellow-100 rounded-md p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <p className="font-bold flex items-center justify-center">

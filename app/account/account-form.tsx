@@ -1,162 +1,109 @@
 'use client'
-import { useCallback, useEffect, useState } from 'react'
-import { createClient } from '@/utils/supabase/client'
-import { type User } from '@supabase/supabase-js'
-import Avatar from './avatar'
+import { useEffect, useState } from 'react'
+import { type User } from '@/lib/auth'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { ToastAction } from '@/components/ui/toast'
-import { useToast } from '@/components/ui/use-toast'
+import { signOut, updateProfile } from '@/app/login/actions'
+import { SubmitButton } from '@/app/login/sumbit-button'
 
-export default function AccountForm({ user }: { user: User | null }) {
-  const supabase = createClient()
-  const [loading, setLoading] = useState(true)
-  const [fullname, setFullname] = useState<string | null>(null)
-  const [username, setUsername] = useState<string | null>(null)
-  const [website, setWebsite] = useState<string | null>(null)
-  const [avatar_url, setAvatarUrl] = useState<string | null>(null)
-  const { toast } = useToast()
-
-  const getProfile = useCallback(async () => {
-    try {
-      setLoading(true)
-
-      const { data, error, status } = await supabase
-        .from('profiles')
-        .select(`full_name, username, website, avatar_url`)
-        .eq('id', user?.id)
-        .single()
-
-      if (error && status !== 406) {
-        console.log(error)
-        throw error
-      }
-
-      if (data) {
-        setFullname(data.full_name)
-        setUsername(data.username)
-        setWebsite(data.website)
-        setAvatarUrl(data.avatar_url)
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Error loading user data!",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }, [user, supabase, toast])
+export default function AccountForm({ user, message }: { user: User | null; message?: string }) {
+  const [name, setName] = useState<string>(user?.name || '')
+  const [email, setEmail] = useState<string>(user?.email || '')
 
   useEffect(() => {
-    getProfile()
-  }, [user, getProfile])
-
-  async function updateProfile({
-    username,
-    website,
-    avatar_url,
-  }: {
-    username: string | null
-    fullname: string | null
-    website: string | null
-    avatar_url: string | null
-  }) {
-    try {
-      setLoading(true)
-
-      const { error } = await supabase.from('profiles').upsert({
-        id: user?.id as string,
-        full_name: fullname,
-        username,
-        website,
-        avatar_url,
-        updated_at: new Date().toISOString(),
-      })
-      if (error) throw error
-      toast({
-        title: "Success",
-        description: "Profile updated successfully!",
-        action: <ToastAction altText="Dismiss">Dismiss</ToastAction>,
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Error updating the data!",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
+    if (user) {
+      setName(user.name)
+      setEmail(user.email)
     }
+  }, [user])
+
+  if (!user) {
+    return <div>Loading...</div>
   }
 
   return (
     <div className="mt-40 mx-auto max-w-xl p-8 sm:p-0 mb-24">
+      <div className="space-y-6">
         <div>
-          {/* 
-            <Avatar
-                uid={user?.id ?? null}
-                url={avatar_url}
-                size={100}
-                onUpload={(url) => {
-                    setAvatarUrl(url)
-                    updateProfile({ fullname, username, website, avatar_url: url })
-                }}
-            />
-          */}
+          <h1 className="text-2xl font-bold mb-6">Account Settings</h1>
+        </div>
+
+        {message && (
+          <div className={`mb-4 p-4 border rounded-md ${message.includes('successfully')
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+            }`}>
+            <p className="text-sm text-center">{message}</p>
+          </div>
+        )}
+
+        <form action={updateProfile} className="space-y-6">
+          <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="text" value={user?.email} disabled />
-        </div>
-        <div>
-            <Label htmlFor="fullName">Full Name</Label>
             <Input
-            id="fullName"
-            type="text"
-            value={fullname || ''}
-            onChange={(e) => setFullname(e.target.value)}
+              id="email"
+              type="email"
+              value={email}
+              disabled
+              className="mt-1"
             />
-        </div>
-        <div>
-            <Label htmlFor="username">Username</Label>
+            <p className="text-sm text-muted-foreground mt-1">
+              Email cannot be changed. Contact support if you need to update your email.
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="name">Full Name</Label>
             <Input
-            id="username"
-            type="text"
-            value={username || ''}
-            onChange={(e) => setUsername(e.target.value)}
+              id="name"
+              name="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your full name"
+              className="mt-1"
+              required
+              minLength={2}
             />
-        </div>
-        {/* 
-        <div>
-            <Label htmlFor="website">Website</Label>
-            <Input
-            id="website"
-            type="url"
-            value={website || ''}
-            onChange={(e) => setWebsite(e.target.value)}
-            />
-        </div>
-        */}
-        <div className='grid grid-cols-2 space-x-4 my-4'>
-            <div>
+          </div>
+
+          <div>
+            <Label>Account Status</Label>
+            <div className="mt-1 flex items-center gap-2">
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.verified
+                ? 'bg-green-100 text-green-800'
+                : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                {user.verified ? 'Verified' : 'Unverified'}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 pt-6">
+            <div className="col-span-2">
+              <SubmitButton
+                className="w-full"
+                pendingText="Updating..."
+                disabled={!name.trim() || name.trim().length < 2}
+              >
+                Update Profile
+              </SubmitButton>
+            </div>
+            <div className="col-span-1">
+              <form action={signOut} className="w-full">
                 <Button
-                className="primary block w-full"
-                variant="noShadow"
-                onClick={() => updateProfile({ fullname, username, website, avatar_url })}
-                disabled={loading}
+                  className="w-full"
+                  type="submit"
+                  variant="neutral"
                 >
-                {loading ? 'Loading ...' : 'Update'}
+                  Sign Out
                 </Button>
+              </form>
             </div>
-            <div>
-                <form action="/auth/signout" method="post">
-                <Button className="button block w-full" type="submit" variant="neutral">
-                    Sign out
-                </Button>
-                </form>
-            </div>
-        </div>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
