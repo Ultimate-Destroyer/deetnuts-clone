@@ -57,6 +57,7 @@ import {
 } from "@/components/ui/accordion";
 import { BookUser, Building, GraduationCap, Info, Lightbulb, MapPin, ShieldCheck, Users, Video } from 'lucide-react';
 import CategoryFlowChart from '@/components/CategoryFlowChart';
+import { DonationCard } from '@/components/DonationCard';
 
 // Types
 interface CutoffRecord {
@@ -1127,7 +1128,7 @@ export default function StateCutoffsPage() {
                         MHT-CET State Cutoffs 2024
                     </h1>
                     <p className="text-muted-foreground text-sm md:text-base lg:text-lg font-medium mt-1 md:mt-2 font-abel">
-                        Round 1 cutoffs for engineering colleges
+                        Use these to predict your chances of admission based on your percentile. (Data : 2024 Round 1)
                     </p>
                 </div>
             </div>
@@ -1168,7 +1169,6 @@ export default function StateCutoffsPage() {
                         <div className="space-y-2">
                             <Label className="text-sm md:text-base font-medium flex items-center gap-2 font-abel">
                                 Target Percentile (from 0% to target)
-                                <span className="text-xs text-muted-foreground font-normal">(e.g., 88.1234567)</span>
                             </Label>
                             <div className="relative">
                                 <Input
@@ -1868,151 +1868,266 @@ export default function StateCutoffsPage() {
 
 
             {/* Informational Cards - Improved Design & UX */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
-                {/* How to Use This Tool */}
+            {/* How to Use This Tool - always on top, full width */}
+            <div className="mt-8">
                 <Card className="relative bg-gradient-to-br from-blue-50 to-white border-blue-200 shadow-md transition-all duration-300 overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-200 opacity-70 transition-all duration-300" />
                     <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-blue-900">
-                            <div className="h-10 w-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow group-hover:bg-blue-200 transition-all duration-200">
-                                <Lightbulb className="h-5 w-5 text-blue-600 group-hover:text-blue-800 transition-all duration-200" />
+                        <CardTitle className="flex items-center gap-3 text-3xl md:text-4xl font-abel text-blue-900">
+                            <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow group-hover:bg-blue-200 transition-all duration-200">
+                                <Lightbulb className="h-6 w-6 text-blue-600 group-hover:text-blue-800 transition-all duration-200" />
                             </div>
                             How to Use This Tool
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4 pt-2">
-                        <ol className="space-y-3 text-sm font-abel">
-                            <li className="flex items-start gap-3">
-                                <span className="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-base shadow">1</span>
-                                <span>
-                                    <span className="font-semibold text-gray-800">Enter Your Percentile</span>
-                                    <span className="block text-gray-600 text-xs">Type your MHT-CET percentile to see colleges in a -10% range.</span>
-                                </span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <span className="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-base shadow">2</span>
-                                <span>
-                                    <span className="font-semibold text-gray-800">Filter Your Preferences</span>
-                                    <span className="block text-gray-600 text-xs">Select categories, courses, and seat types to narrow down results.</span>
-                                </span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <span className="flex-shrink-0 mt-1 h-6 w-6 flex items-center justify-center rounded-full bg-blue-200 text-blue-700 font-bold text-base shadow">3</span>
-                                <span>
-                                    <span className="font-semibold text-gray-800">Analyze & Strategize</span>
-                                    <span className="block text-gray-600 text-xs">Results are sorted by highest cutoff. Use this to plan your CAP round choices.</span>
-                                </span>
-                            </li>
-                        </ol>
-                        <div className="mt-2 p-3 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg flex items-center gap-2">
-                            <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-amber-200 text-amber-800 font-bold mr-2">
-                                <Lightbulb className="h-3 w-3" />
+                    <CardContent className="space-y-6 pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {/* Step 1 */}
+                            <section className="flex flex-col items-center text-center p-6 bg-blue-50 rounded-xl border border-blue-100 shadow-sm" aria-labelledby="step1-title">
+                                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-200 mb-4">
+                                    <span className="text-2xl md:text-3xl font-bold text-blue-700">1</span>
+                                </div>
+                                <h3 id="step1-title" className="text-xl md:text-2xl font-bold text-blue-900 mb-2">Enter Your MHT-CET Percentile</h3>
+                                <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                                    Type your percentile score (e.g., <span className="font-semibold">95.5</span>) in the box above.<br />
+                                    <span className="text-sm md:text-base text-blue-800 block mt-2">The tool will show all colleges where the cutoff is less than or equal to your percentile.<br />(Range: <b>0%</b> up to your target percentile)</span>
+                                </p>
+                            </section>
+                            {/* Step 2 */}
+                            <section className="flex flex-col items-center text-center p-6 bg-blue-50 rounded-xl border border-blue-100 shadow-sm" aria-labelledby="step2-title">
+                                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-200 mb-4">
+                                    <span className="text-2xl md:text-3xl font-bold text-blue-700">2</span>
+                                </div>
+                                <h3 id="step2-title" className="text-xl md:text-2xl font-bold text-blue-900 mb-2">Filter Your Preferences</h3>
+                                <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                                    Use the filters to select <span className="font-semibold">categories</span>, <span className="font-semibold">courses</span>, <span className="font-semibold">seat types</span>, and <span className="font-semibold">university regions</span>.<br />
+                                    <span className="text-sm md:text-base text-blue-800 block mt-2">This helps you narrow down the results to match your eligibility and interests.</span>
+                                </p>
+                            </section>
+                            {/* Step 3 */}
+                            <section className="flex flex-col items-center text-center p-6 bg-blue-50 rounded-xl border border-blue-100 shadow-sm" aria-labelledby="step3-title">
+                                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-200 mb-4">
+                                    <span className="text-2xl md:text-3xl font-bold text-blue-700">3</span>
+                                </div>
+                                <h3 id="step3-title" className="text-xl md:text-2xl font-bold text-blue-900 mb-2">Analyze &amp; Plan</h3>
+                                <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+                                    Results are sorted by <span className="font-semibold">highest cutoff</span> first.<br />
+                                    <span className="text-sm md:text-base text-blue-800 block mt-2">Use this to plan your <span className="font-semibold">CAP round choices</span> and maximize your admission chances.</span>
+                                </p>
+                            </section>
+                        </div>
+                        <div className="mt-4 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg flex items-center gap-3">
+                            <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-amber-200 text-amber-800 font-bold mr-2">
+                                <Lightbulb className="h-5 w-5" />
                             </span>
-                            <span className="text-xs font-abel text-amber-900">
-                                <span className="font-bold">Pro Tip:</span> Enter your percentile to see all colleges where you have a chance of admission (from 0% to your target percentile). Results show the distance from your target.
+                            <span className="text-base md:text-lg font-abel text-amber-900">
+                                <span className="font-bold">Tip:</span> Enter your percentile to see all colleges where you have a chance of admission (from 0% up to your target percentile).<br />
+                                <span className="text-amber-800">This tool uses official DTE Maharashtra cutoff data for accuracy.<br />
+                                    <span className='block mt-1 text-xs md:text-sm text-amber-700'>Always double-check with the latest official DTE Maharashtra sources and college websites for the most current and authoritative information. We do not guarantee admission or take responsibility for any decisions made using this tool.</span></span>
                             </span>
                         </div>
                     </CardContent>
                 </Card>
+            </div>
 
-                {/* Seat Allocation Types */}
-                <Card className="relative bg-gradient-to-br from-purple-50 to-white border-purple-200 shadow-md transition-all duration-300 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-purple-200 opacity-70 transition-all duration-300" />
-                    <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-purple-900">
-                            <div className="h-10 w-10 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow group-hover:bg-purple-200 transition-all duration-200">
-                                <MapPin className="h-5 w-5 text-purple-600 group-hover:text-purple-800 transition-all duration-200" />
+            {/* Seat Allocation Types and Category & Code Legends side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                {/* Seat Allocation Types - left */}
+                <Card className="relative bg-gradient-to-br from-purple-50 to-white border-purple-200 shadow-lg transition-all duration-300 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-purple-200 opacity-70" />
+                    <CardHeader className="pb-2">
+                        <CardTitle className="flex items-center gap-3 text-3xl md:text-4xl font-abel text-purple-900">
+                            <div className="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow">
+                                <MapPin className="h-6 w-6 text-purple-600" />
                             </div>
-                            Seat Allocation Types
+                            <span className="tracking-tight">Seat Allocation Types (Explained)</span>
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3 pt-2 text-sm font-abel">
-                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 group-hover:border-purple-300 transition-all">
-                            <ShieldCheck className="h-5 w-5 text-green-600 flex-shrink-0" />
-                            <div>
-                                <span className="font-semibold text-gray-800">State Level</span>
-                                <span className="block text-xs text-gray-600">Open to all Maharashtra candidates.</span>
+                    <CardContent className="pt-4">
+                        <div className="flex flex-col gap-8 md:gap-10">
+                            {/* State Level */}
+                            <div className="rounded-xl bg-green-50/80 border border-green-100 p-6 shadow-sm flex items-start gap-6">
+                                <ShieldCheck className="h-10 w-10 text-green-600 mt-1" />
+                                <div>
+                                    <div className="font-extrabold text-green-900 font-abel text-2xl md:text-3xl mb-2">State Level (S)</div>
+                                    <div className="text-lg md:text-xl text-gray-700 font-abel mb-2">
+                                        <span className="font-semibold">Who can apply?</span> <br />
+                                        <span>All students from Maharashtra, regardless of their home university region.</span>
+                                    </div>
+                                    <div className="text-lg text-gray-600 font-abel">
+                                        <span className="font-semibold">Example:</span> If you are from any part of Maharashtra, you can compete for these seats.
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 group-hover:border-purple-300 transition-all">
-                            <Building className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                            <div>
-                                <span className="font-semibold text-gray-800">Home University</span>
-                                <span className="block text-xs text-gray-600">For students within the same university region.</span>
+
+                            {/* Home University */}
+                            <div className="rounded-xl bg-blue-50/80 border border-blue-100 p-6 shadow-sm flex items-start gap-6">
+                                <Building className="h-10 w-10 text-blue-600 mt-1" />
+                                <div>
+                                    <div className="font-extrabold text-blue-900 font-abel text-2xl md:text-3xl mb-2">Home University (H)</div>
+                                    <div className="text-lg md:text-xl text-gray-700 font-abel mb-2">
+                                        <span className="font-semibold">Who can apply?</span> <br />
+                                        <span>Only students whose <span className="font-semibold">Home University</span> matches the college&apos;s university region.</span>
+                                    </div>
+                                    <div className="text-lg text-gray-600 font-abel mb-2">
+                                        <span className="font-semibold">What is Home University?</span> <br />
+                                        The university region where you completed your 12th standard (HSC) or equivalent. Each district in Maharashtra is mapped to a university region.
+                                    </div>
+                                    <div className="text-lg text-gray-600 font-abel">
+                                        <span className="font-semibold">Example:</span> If you studied in Pune district, your Home University is &quot;Savitribai Phule Pune University&quot;. You can apply for Home University seats in colleges under this university.
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-2 rounded-lg bg-white border border-gray-200 group-hover:border-purple-300 transition-all">
-                            <Users className="h-5 w-5 text-orange-600 flex-shrink-0" />
-                            <div>
-                                <span className="font-semibold text-gray-800">Other University</span>
-                                <span className="block text-xs text-gray-600">For students from different university regions.</span>
+
+                            {/* Other University */}
+                            <div className="rounded-xl bg-orange-50/80 border border-orange-100 p-6 shadow-sm flex items-start gap-6">
+                                <Users className="h-10 w-10 text-orange-600 mt-1" />
+                                <div>
+                                    <div className="font-extrabold text-orange-900 font-abel text-2xl md:text-3xl mb-2">Other University (O)</div>
+                                    <div className="text-lg md:text-xl text-gray-700 font-abel mb-2">
+                                        <span className="font-semibold">Who can apply?</span> <br />
+                                        <span>Students from <span className="font-semibold">other</span> university regions (not the college&apos;s Home University region).</span>
+                                    </div>
+                                    <div className="text-lg text-gray-600 font-abel">
+                                        <span className="font-semibold">Example:</span> If your Home University is &quot;Mumbai University&quot; and you are applying to a college under &quot;Pune University&quot;, you are eligible for Other University seats there.
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="mt-2 text-xs text-purple-800 font-abel bg-purple-50 rounded px-2 py-1">
-                            <span className="font-bold">Tip:</span> Hover on seat types in the table for more info.
+
+                            {/* Visual Table for Quick Reference */}
+                            <div className="rounded-xl bg-purple-50/80 border border-purple-100 p-6 shadow-sm">
+                                <div className="font-extrabold text-purple-900 font-abel text-2xl md:text-3xl mb-3 flex items-center gap-2">
+                                    <MapPin className="h-7 w-7 text-purple-600" />
+                                    Quick Reference Table
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full text-lg md:text-xl font-abel border-collapse">
+                                        <thead>
+                                            <tr className="bg-purple-100">
+                                                <th className="px-4 py-3 border border-purple-200 text-left">Type</th>
+                                                <th className="px-4 py-3 border border-purple-200 text-left">Code</th>
+                                                <th className="px-4 py-3 border border-purple-200 text-left">Who Can Apply?</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td className="px-4 py-3 border border-purple-100 font-semibold">State Level</td>
+                                                <td className="px-4 py-3 border border-purple-100 font-mono text-lg md:text-xl">S</td>
+                                                <td className="px-4 py-3 border border-purple-100">All Maharashtra students</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-3 border border-purple-100 font-semibold">Home University</td>
+                                                <td className="px-4 py-3 border border-purple-100 font-mono text-lg md:text-xl">H</td>
+                                                <td className="px-4 py-3 border border-purple-100">Students from the same university region</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="px-4 py-3 border border-purple-100 font-semibold">Other University</td>
+                                                <td className="px-4 py-3 border border-purple-100 font-mono text-lg md:text-xl">O</td>
+                                                <td className="px-4 py-3 border border-purple-100">Students from other university regions</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="mt-4 text-lg md:text-xl text-purple-800 font-abel bg-purple-50 rounded px-3 py-3">
+                                    <span className="font-bold">Tip:</span> If you are unsure about your Home University, check your 12th (HSC) board details or ask your school/college.
+                                </div>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Category and Code Legends */}
-                <Card className="relative bg-gradient-to-br from-emerald-50 to-white border-emerald-200 shadow-md transition-all duration-300 md:col-span-2 xl:col-span-1 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-200 opacity-70 transition-all duration-300" />
-                    <CardHeader className="pb-3">
-                        <CardTitle className="flex items-center gap-3 text-lg font-abel text-emerald-900">
-                            <div className="h-10 w-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow group-hover:bg-emerald-200 transition-all duration-200">
-                                <BookUser className="h-5 w-5 text-emerald-600 group-hover:text-emerald-800 transition-all duration-200" />
+                {/* Category and Code Legends - right */}
+                <Card className="relative bg-gradient-to-br from-emerald-50 to-white border-emerald-200 shadow-lg transition-all duration-300 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-emerald-200 opacity-70" />
+                    <CardHeader className="pb-2">
+                        <CardTitle className="flex items-center gap-3 text-2xl md:text-3xl font-abel text-emerald-900">
+                            <div className="h-10 w-10 bg-emerald-100 rounded-xl flex items-center justify-center flex-shrink-0 shadow">
+                                <BookUser className="h-5 w-5 text-emerald-600" />
                             </div>
-                            Category & Code Legends
+                            <span className="tracking-tight">Category & Code Legends</span>
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-2">
-                        <Accordion type="single" collapsible className="w-full space-y-3">
-                            <AccordionItem value="item-1" className="border-none bg-gradient-to-br from-emerald-100/60 to-white shadow-lg rounded-xl overflow-hidden">
-                                <AccordionTrigger className="font-abel text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
-                                    <div className="flex items-center gap-2">
-                                        <Info className="h-5 w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
-                                        <span>Category Code Format</span>
+                        <div className="flex flex-col gap-6 md:gap-8">
+                            {/* Category Code Format */}
+                            <div className="rounded-xl bg-emerald-50/80 border border-emerald-100 p-6 shadow-sm">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Info className="h-6 w-6 text-emerald-600" />
+                                    <span className="font-semibold text-emerald-900 font-abel text-xl md:text-2xl">Category Code Format</span>
+                                </div>
+                                <ul className="text-lg md:text-xl font-abel space-y-2 pl-2">
+                                    <li>
+                                        <div className="flex flex-col gap-1">
+                                            <div><span className="font-bold">G</span> = <span className="text-gray-700">General (open to all)</span></div>
+                                            <div><span className="font-bold">L</span> = <span className="text-gray-700">Ladies (female candidates only)</span></div>
+                                            <div><span className="font-bold">SC</span> = <span className="text-gray-700">Scheduled Caste</span>, <span className="font-bold">ST</span> = <span className="text-gray-700">Scheduled Tribe</span>, <span className="font-bold">OBC</span> = <span className="text-gray-700">Other Backward Class</span>, <span className="font-bold">EWS</span> = <span className="text-gray-700">Economically Weaker Section</span></div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div className="flex flex-col gap-1">
+                                            <div><span className="font-bold">OPEN</span> = <span className="text-gray-700">Open to all within that category</span></div>
+                                            <div><span className="font-bold">SC/ST/OBC/EWS</span> = <span className="text-gray-700">Reserved for specific categories</span></div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div className="flex flex-col gap-1">
+                                            <div><span className="font-bold">H</span> = <span className="text-gray-700">Home University (your university region)</span></div>
+                                            <div><span className="font-bold">O</span> = <span className="text-gray-700">Other University (other regions)</span></div>
+                                            <div><span className="font-bold">S</span> = <span className="text-gray-700">State Level (all Maharashtra students)</span></div>
+                                        </div>
+                                    </li>
+                                    <li className="pt-2">
+                                        <div className="flex flex-col gap-1">
+                                            <div><span className="font-bold">Example 1:</span> <span className="font-mono bg-gray-100 px-1 rounded text-base">GOPENH</span> <span className="text-gray-700">= General, Open seat, Home University</span></div>
+                                            <div><span className="font-bold">Example 2:</span> <span className="font-mono bg-gray-100 px-1 rounded text-base">LOPENO</span> <span className="text-gray-700">= Ladies, Open seat, Other University</span></div>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <div className="mt-3 text-base text-emerald-900 font-abel bg-emerald-100 rounded px-3 py-2">
+                                    <b>How to read a code:</b> Most codes are a combination of:
+                                    <ul className="list-disc pl-6 mt-2 space-y-1">
+                                        <li><b>First part:</b> G = General, L = Ladies, SC = Scheduled Caste, ST = Scheduled Tribe, OBC = Other Backward Class, EWS = Economically Weaker Section, etc.</li>
+                                        <li><b>OPEN:</b> Open to all within that category (not a reserved sub-quota). Other codes like OBC, SC, etc. indicate reservation for that group.</li>
+                                        <li><b>H/O/S:</b> H = Home University, O = Other University, S = State Level. This is always at the end of the code.</li>
+                                    </ul>
+                                    <div className="mt-2">
+                                        <b>Full Example:</b>
+                                        <span className="font-mono bg-gray-100 px-1 rounded">GOPENO</span> = General, Open seat, Other University. <br />
+                                        <span className="font-mono bg-gray-100 px-1 rounded">LOPENS</span> = Ladies, Open seat, State Level.
                                     </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-emerald-100/80 shadow-inner">
-                                    <div className="space-y-2 p-3">
-                                        <p><span className="font-bold">G</span> = General, <span className="font-bold">L</span> = Ladies</p>
-                                        <p><span className="font-bold">H</span> = Home Uni, <span className="font-bold">O</span> = Other Uni, <span className="font-bold">S</span> = State</p>
-                                        <p>Example: <span className="font-mono bg-gray-100 px-1 rounded text-xs">GOPENH</span> is General Open Home University.</p>
+                                    <div className="mt-2">
+                                        <b>Tip:</b> The code tells you both <u>who can apply</u> (category, gender, region) and <u>which seat type</u> (open/reserved). <br />
+                                        <b>Fact check:</b> These codes are based on the official DTE Maharashtra MHT-CET seat matrix and allocation rules. Always refer to the latest government brochure for any changes or new categories.
                                     </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="item-2" className="border-none bg-gradient-to-br from-purple-100/60 to-white shadow-lg rounded-xl overflow-hidden">
-                                <AccordionTrigger className="font-abel text-base font-semibold text-purple-900 hover:no-underline px-4 py-3 bg-purple-50/80 rounded-t-xl group transition-all duration-200">
-                                    <div className="flex items-center gap-2">
-                                        <GraduationCap className="h-5 w-5 text-purple-600 group-data-[state=open]:text-purple-800 transition-colors" />
-                                        <span>Special Category Codes</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-purple-100/80 shadow-inner">
-                                    <div className="space-y-2 p-3">
-                                        <p><span className="font-bold">TFWS:</span> Tuition Fee Waiver Scheme</p>
-                                        <p><span className="font-bold">EWS:</span> Economically Weaker Section</p>
-                                        <p><span className="font-bold">DEF:</span> Defence Reserved</p>
-                                        <p><span className="font-bold">PWD:</span> Persons with Disability</p>
-                                        <p><span className="font-bold">MI:</span> Minority Institutions</p>
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                            <AccordionItem value="item-3" className="border-none bg-gradient-to-br from-emerald-100/60 to-white shadow-lg rounded-xl overflow-hidden">
-                                <AccordionTrigger className="font-abel text-base font-semibold text-emerald-900 hover:no-underline px-4 py-3 bg-emerald-50/80 rounded-t-xl group transition-all duration-200">
-                                    <div className="flex items-center gap-2">
-                                        <Info className="h-5 w-5 text-emerald-600 group-data-[state=open]:text-emerald-800 transition-colors" />
-                                        <span>Video Explanation</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="font-abel text-xs sm:text-sm pb-3 bg-white rounded-b-xl border-t border-emerald-100/80 shadow-inner">
-                                    <div className="aspect-video w-full max-w-full rounded overflow-hidden">
-                                        <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/1WA_Vh1jaU4?si=bBGUzsa5AoHX6ONh" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen className="w-full h-48 md:h-56 rounded" />
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
+                                </div>
+                            </div>
+
+                            {/* Special Category Codes */}
+                            <div className="rounded-xl bg-purple-50/80 border border-purple-100 p-6 shadow-sm">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <GraduationCap className="h-6 w-6 text-purple-600" />
+                                    <span className="font-semibold text-purple-900 font-abel text-xl md:text-2xl">Special Category Codes</span>
+                                </div>
+                                <ul className="text-lg md:text-xl font-abel space-y-2 pl-2">
+                                    <li className="text-base md:text-lg"><span className="font-bold">TFWS:</span> Tuition Fee Waiver Scheme</li>
+                                    <li className="text-base md:text-lg"><span className="font-bold">EWS:</span> Economically Weaker Section</li>
+                                    <li className="text-base md:text-lg"><span className="font-bold">DEF:</span> Defence Reserved</li>
+                                    <li className="text-base md:text-lg"><span className="font-bold">PWD:</span> Persons with Disability</li>
+                                    <li className="text-base md:text-lg"><span className="font-bold">MI:</span> Minority Institutions</li>
+                                </ul>
+                            </div>
+
+                            {/* Video Explanation */}
+                            <div className="rounded-xl bg-emerald-50/80 border border-emerald-100 p-6 shadow-sm">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Info className="h-6 w-6 text-emerald-600" />
+                                    <span className="font-semibold text-emerald-900 font-abel text-xl md:text-2xl">Video Explanation (not affiliated)</span>
+                                </div>
+                                <div className="aspect-video w-full max-w-full rounded overflow-hidden">
+                                    <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/1WA_Vh1jaU4?si=bBGUzsa5AoHX6ONh" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen className="w-full h-56 md:h-64 rounded" />
+                                </div>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -2020,6 +2135,10 @@ export default function StateCutoffsPage() {
             {/* Category Flow Chart */}
             <div className="mt-8 md:mt-12">
                 <CategoryFlowChart />
+            </div>
+
+            <div className="mt-8 md:mt-12 overflow-hidden md:overflow-visible">
+                <DonationCard />
             </div>
         </div>
     );
