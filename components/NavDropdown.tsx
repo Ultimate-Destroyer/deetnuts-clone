@@ -15,13 +15,10 @@ interface LinkItem {
 
 const cutoffLinks: LinkItem[] = [
   { href: '/mht-cet', title: 'MHTCET', subtitle: 'All India & State Cutoffs' },
-  { href: '#', title: 'BITS', subtitle: 'Cutoffs' },
-  { href: '#', title: 'JOSAA', subtitle: 'Cutoffs' },
-  { href: '#', title: 'NIRF', subtitle: 'Stats' },
 ];
 
 const toolLinks: LinkItem[] = [
-  { href: '#', title: 'MHT-CET Rank Predictor', subtitle: 'Estimate your rank' },
+  { href: '#', title: '/', subtitle: '/' },
 ];
 
 interface DropdownProps {

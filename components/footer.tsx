@@ -19,18 +19,14 @@ export default function Footer() {
 
   const serviceLinks = [
     { name: "MHT-CET", href: "/mht-cet" },
-    { name: "MHT-CET State Level", href: "#" },
-    { name: "BITS", href: "#" },
-    { name: "JOSAA", href: "#" },
-    { name: "CSAB", href: "#" },
   ];
 
   const Tools = [
-    { name: "MHT-CET Rank Predictor", href: "#" },
+    { name: "/", href: "#" },
   ];
 
   const Contribute = [
-    { name: "Sumbit Deets", href: "#" },
+    { name: "/", href: "#" },
   ];
 
 
