@@ -37,8 +37,8 @@ export const metadata: Metadata = {
         title: "MHT-CET State Cutoffs 2024 | 2025 | College Predictor & Category Codes",
         description:
             "See official MHT-CET 2024 state cutoffs for all Maharashtra engineering colleges. Filter by percentile, category, course, seat type, and university region. Plan your CAP round choices with the most accurate, up-to-date data.",
-        url: "https://deetnut.in/mht-cet/state-cutoffs",
-        siteName: "Deetnut.in",
+        url: "https://deetnuts.com/mht-cet/state-cutoffs",
+        siteName: "deetnuts.com",
         type: "website",
         images: [
             {
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
             "See official MHT-CET 2024 | 2025 state cutoffs for all Maharashtra engineering colleges. Filter by percentile, category, course, seat type, and university region. Plan your CAP round choices with the most accurate, up-to-date data.",
         images: ["https://res.cloudinary.com/dfyrk32ua/image/upload/v1722186653/deetnuts/preview_o5ykn7.png"]
     },
-    metadataBase: new URL("https://deetnut.in"),
+    metadataBase: new URL("https://deetnuts.com/"),
 };
 
 export default function StateCutoffsLayout({ children }: { children: React.ReactNode }) {
