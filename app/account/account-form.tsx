@@ -80,27 +80,14 @@ export default function AccountForm({ user, message }: { user: User | null; mess
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 pt-6">
-            <div className="col-span-2">
-              <SubmitButton
-                className="w-full"
-                pendingText="Updating..."
-                disabled={!name.trim() || name.trim().length < 2}
-              >
-                Update Profile
-              </SubmitButton>
-            </div>
-            <div className="col-span-1">
-              <form action={signOut} className="w-full">
-                <Button
-                  className="w-full"
-                  type="submit"
-                  variant="neutral"
-                >
-                  Sign Out
-                </Button>
-              </form>
-            </div>
+          <div className="flex items-start gap-4 pt-6">
+            <SubmitButton
+              className="flex-1"
+              pendingText="Updating..."
+              disabled={!name.trim() || name.trim().length < 2}
+            >
+              Update Profile
+            </SubmitButton>
           </div>
         </form>
       </div>

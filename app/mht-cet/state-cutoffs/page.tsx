@@ -1130,25 +1130,6 @@ export default function StateCutoffsPage() {
                         Round 1 cutoffs for engineering colleges
                     </p>
                 </div>
-                <div className="flex flex-col md:flex-row gap-2 md:gap-3">
-                    {/* Stats */}
-                    {totalItems > 0 && (
-                        <div className="bg-white border-2 border-black rounded-base p-3 shadow-base">
-                            <p className="text-xs text-black font-abel">Total Records</p>
-                            <p className="text-lg font-heading text-black">{totalItems.toLocaleString()}</p>
-                        </div>
-                    )}
-                    {/* Export Button */}
-                    <Button
-                        onClick={exportToCSV}
-                        disabled={isExporting || loading || records.length === 0}
-                        variant="neutral"
-                        className="h-fit font-abel"
-                    >
-                        <Download className="mr-2 h-4 w-4" />
-                        {isExporting ? "Exporting..." : "Export CSV"}
-                    </Button>
-                </div>
             </div>
 
             {/* Filters */}
@@ -1169,7 +1150,7 @@ export default function StateCutoffsPage() {
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search colleges, courses..."
+                            placeholder="Search colleges or universities"
                             value={pendingFilters.search}
                             onChange={(e) => {
                                 const value = e.target.value;
