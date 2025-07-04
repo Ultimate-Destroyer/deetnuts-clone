@@ -14,19 +14,19 @@ export async function login(formData: FormData) {
   // Validate input
   if (!email || !password) {
     const params = new URLSearchParams({ message: 'Please fill in all fields' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/login?${params.toString()}`)
   }
 
   if (!email.includes('@')) {
     const params = new URLSearchParams({ message: 'Please enter a valid email address' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/login?${params.toString()}`)
   }
 
   if (password.length < 8) {
     const params = new URLSearchParams({ message: 'Password must be at least 8 characters long' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/login?${params.toString()}`)
   }
 
@@ -59,7 +59,7 @@ export async function login(formData: FormData) {
   } catch (error) {
     console.error('Login error:', error)
     const params = new URLSearchParams()
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
 
     if (error instanceof ClientResponseError) {
       if (error.status === 400) {
@@ -85,31 +85,31 @@ export async function signup(formData: FormData) {
   // Validate input
   if (!email || !password || !passwordConfirm || !name) {
     const params = new URLSearchParams({ message: 'Please fill in all fields' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/signup?${params.toString()}`)
   }
 
   if (!email.includes('@')) {
     const params = new URLSearchParams({ message: 'Please enter a valid email address' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/signup?${params.toString()}`)
   }
 
   if (password.length < 8) {
     const params = new URLSearchParams({ message: 'Password must be at least 8 characters long' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/signup?${params.toString()}`)
   }
 
   if (password !== passwordConfirm) {
     const params = new URLSearchParams({ message: 'Passwords do not match' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/signup?${params.toString()}`)
   }
 
   if (name.trim().length < 2) {
     const params = new URLSearchParams({ message: 'Name must be at least 2 characters long' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
     return redirect(`/signup?${params.toString()}`)
   }
 
@@ -122,14 +122,13 @@ export async function signup(formData: FormData) {
     passwordConfirm: passwordConfirm,
     name: name.trim(),
   }
-
   try {
     const record = await pb.collection('users').create(data)
     await pb.collection('users').requestVerification(email)
   } catch (error) {
     console.error('Signup error:', error)
     const params = new URLSearchParams()
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
+    if (redirectTo && redirectTo !== '/account') params.set('redirect', redirectTo)
 
     if (error instanceof ClientResponseError) {
       const errorData = error.response?.data
@@ -149,9 +148,11 @@ export async function signup(formData: FormData) {
     params.set('message', 'Failed to create account. Please try again.')
     return redirect(`/signup?${params.toString()}`)
   }
-
   // Automatically log the user in after successful signup
   try {
+    // Small delay to ensure user record is fully created
+    await new Promise(resolve => setTimeout(resolve, 100))
+
     const authData = await pb.collection('users').authWithPassword(email, password)
 
     const cookieStore = await cookies()
@@ -171,13 +172,28 @@ export async function signup(formData: FormData) {
     })
 
     revalidatePath('/', 'layout')
-    redirect(redirectTo)
+
+    // Try to add success message to destination URL if possible
+    try {
+      const url = new URL(redirectTo, 'https://example.com') // Use dummy base for relative URLs
+      url.searchParams.set('message', 'Account created successfully! Welcome to the platform.')
+      redirect(url.pathname + url.search)
+    } catch {
+      // If URL manipulation fails, just redirect to the destination
+      redirect(redirectTo)
+    }
   } catch (error) {
-    // If auto-login fails, redirect to login page with success message
+    // If auto-login fails, still redirect to original destination but with a success message
     revalidatePath('/', 'layout')
-    const params = new URLSearchParams({ message: 'Account created successfully! Please log in to access the platform.' })
-    if (redirectTo !== '/account') params.set('redirect', redirectTo)
-    redirect(`/login?${params.toString()}`)
+    // Try to add success message to destination URL if possible
+    try {
+      const url = new URL(redirectTo, 'https://example.com') // Use dummy base for relative URLs
+      url.searchParams.set('message', 'Account created successfully! You have been logged in.')
+      redirect(url.pathname + url.search)
+    } catch {
+      // If URL manipulation fails, just redirect to the destination
+      redirect(redirectTo)
+    }
   }
 }
 

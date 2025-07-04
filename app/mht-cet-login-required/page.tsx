@@ -2,9 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
-export default function MHTCETLoginRequired({ searchParams }: {
+export default async function MHTCETLoginRequired({ searchParams }: {
     searchParams: Promise<{ redirect?: string }>
 }) {
+    const params = await searchParams
+    const redirectTo = params?.redirect || '/mht-cet'
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-32">
             <div className="max-w-md w-full text-center space-y-8">
@@ -34,7 +37,7 @@ export default function MHTCETLoginRequired({ searchParams }: {
 
                     <div className="space-y-3">
                         <Link
-                            href={`/login?redirect=${encodeURIComponent('/mht-cet')}`}
+                            href={`/login?redirect=${encodeURIComponent(redirectTo)}`}
                             className="block w-full"
                         >
                             <Button className="w-full bg-blue-600 hover:bg-blue-700">
@@ -43,7 +46,7 @@ export default function MHTCETLoginRequired({ searchParams }: {
                         </Link>
 
                         <Link
-                            href="/signup"
+                            href={`/signup?redirect=${encodeURIComponent(redirectTo)}`}
                             className="block w-full"
                         >
                             <Button variant="neutral" className="w-full">
