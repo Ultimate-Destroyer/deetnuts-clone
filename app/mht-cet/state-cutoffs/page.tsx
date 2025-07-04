@@ -1681,7 +1681,7 @@ export default function StateCutoffsPage() {
                     {!filters.percentileInput ? (
                         <div className="flex flex-col items-center justify-center py-12 md:py-16 space-y-4 px-4">
                             <div className="text-center space-y-2">
-                                <h3 className="text-base md:text-lg font-medium font-abel">Enter Target Percentile</h3>
+                                <h3 className="text-base md:text-lg font-medium font-abel">Enter Your MHT-CET Percentile</h3>
                                 <p className="text-xs md:text-sm text-muted-foreground font-abel max-w-md">
                                     Please enter a target percentile above to search for MHT-CET cutoffs
                                 </p>
